@@ -3,7 +3,7 @@ const { STATUS_CODES } = require('http');
 const TYPE = 'Content-Type';
 const OSTREAM = 'application/octet-stream';
 
-function send(payload = '', code = 200, headers = {}) {
+const send = (payload = '', code = 200, headers = {}) => {
   let type = headers[TYPE];
 
   if (!!payload && typeof payload.pipe === 'function') {

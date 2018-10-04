@@ -492,12 +492,12 @@ const HEX = [
   15
 ];
 
-function hexCodeToInt(c, shift) {
+const hexCodeToInt = (c, shift) => {
   const i = HEX[c];
   return i === undefined ? 255 : i << shift;
 }
 
-function decodeURIComponent(uri) {
+const decodeURIComponent = (uri) => {
   let percentPosition = uri.indexOf('%');
   if (percentPosition === -1) return uri;
 

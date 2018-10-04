@@ -4,7 +4,7 @@ const { parse } = require('querystring');
 const parseurl = require('./parseurl');
 const Router = require('./router');
 
-function onError(err, req, res) {
+const onError = (err, req, res) => {
   const code = (res.statusCode = err.code || err.status || 500);
   res.end((err.length && err) || err.message || STATUS_CODES[code]);
 }
@@ -19,13 +19,13 @@ class Tiny extends Router {
       notFound: this.notFound = onError.bind(null, { code: 404 }),
       server: this.server = null
     } = options);
-    this.dispatch = this.dispatch.bind(this);
+    this.handler = this.handler.bind(this);
   }
 
   run(callback = function cb() {}) {
     this.server = this.server || createServer();
     this.server.listen(this.port, this.host);
-    this.server.on('request', this.dispatch);
+    this.server.on('request', this.handler);
     this.server.once('listening', () => {
       this.use();
       const address = this.server.address();
@@ -35,7 +35,7 @@ class Tiny extends Router {
     return this.server;
   }
 
-  dispatch(req, res) {
+  handler(req, res) {
     const parsedUrl = parseurl(req);
     const params = {};
     const route = this.match(req.method, parsedUrl.pathname, params);
