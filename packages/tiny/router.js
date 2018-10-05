@@ -18,11 +18,9 @@ const strip = (str) => {
   str.charCodeAt(0) === SLASH && (str = str.substr(1));
   const len = str.length - 1;
   return str.charCodeAt(len) === SLASH ? str.substr(0, len) : str;
-}
+};
 
-const split = (str) => {
-  return (str = strip(str)) === SEP ? [SEP] : str.split(SEP);
-}
+const split = (str) => ((str = strip(str)) === SEP ? [SEP] : str.split(SEP));
 
 module.exports = class Router {
   constructor(path = null) {

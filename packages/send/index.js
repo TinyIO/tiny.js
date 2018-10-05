@@ -25,7 +25,7 @@ const send = (payload = '', code = 200, headers = {}) => {
 
   this.writeHead(code, headers);
   this.end(payload);
-}
+};
 
 module.exports = (req, res, next) => {
   res.send = send.bind(res);

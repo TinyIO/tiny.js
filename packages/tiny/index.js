@@ -7,7 +7,7 @@ const Router = require('./router');
 const onError = (err, req, res) => {
   const code = (res.statusCode = err.code || err.status || 500);
   res.end((err.length && err) || err.message || STATUS_CODES[code]);
-}
+};
 
 class Tiny extends Router {
   constructor(options) {

@@ -495,7 +495,7 @@ const HEX = [
 const hexCodeToInt = (c, shift) => {
   const i = HEX[c];
   return i === undefined ? 255 : i << shift;
-}
+};
 
 const decodeURIComponent = (uri) => {
   let percentPosition = uri.indexOf('%');
@@ -539,6 +539,6 @@ const decodeURIComponent = (uri) => {
   }
 
   return decoded + uri.slice(last);
-}
+};
 
 module.exports = decodeURIComponent;

@@ -4,9 +4,9 @@ module.exports = (req) => {
     return _parsedUrl;
   }
 
-  if (!url && url !== '') return;
+  if (!url && url !== '') return void 0;
 
-  let obj = {
+  const obj = {
     query: null,
     search: null,
     href: url,
