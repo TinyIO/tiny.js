@@ -6,7 +6,7 @@ const Router = require('./router');
 
 const onError = (err, req, res) => {
   const code = (res.statusCode = err.code || err.status || 500);
-  res.end((err.length && err) || err.message || STATUS_CODES[code]);
+  res.end((err && err.length) || err.message || STATUS_CODES[code]);
 };
 
 class Tiny extends Router {
@@ -16,10 +16,11 @@ class Tiny extends Router {
       host: this.host,
       port: this.port,
       onError: this.onError = onError,
-      notFound: this.notFound = onError.bind(null, { code: 404 }),
+      notFound: this.notFound = onError.bind(void 0, { code: 404 }),
       server: this.server = null
     } = options);
     this.handler = this.handler.bind(this);
+    this.match = super.match;
   }
 
   run(callback = function cb() {}) {
@@ -33,6 +34,10 @@ class Tiny extends Router {
     });
 
     return this.server;
+  }
+
+  Router() {
+    return new Router();
   }
 
   handler(req, res) {
