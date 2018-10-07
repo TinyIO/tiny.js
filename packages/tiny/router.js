@@ -235,7 +235,7 @@ module.exports = class Router {
     const routes = this.routes;
     const tree = {};
     Object.keys(routes).forEach((method) => {
-      const getName = (route) => {
+      const process = (route, obj) => {
         let name = route[NAME];
         const type = route[TYPE];
         if (type === PTYPE) {
@@ -243,35 +243,25 @@ module.exports = class Router {
         } else if (type === ATYPE) {
           name = `* ${name}`;
         }
-        return name;
-      };
-      const process = (name, route, item) => {
-        item.name = name;
-        item.methods = item.methods || [];
-        item.childs = item.childs || {};
-
+        const item = obj[name] || {
+          name,
+          methods: {},
+          childs: {}
+        };
+        obj[name] = item;
         if (route[HANDLER].length > 0) {
           item.methods[method] = true;
         }
-
         Object.keys(route).forEach((key) => {
-          const child = route[key];
-          const name = getName(child);
-          item.childs[name] = process(name, child, item.childs[name] || {});
+          process(route[key], item.childs);
         });
-
-        const param = route[PARAM];
-        if (param) {
-          const name = getName(param);
-          item.childs[name] = process(name, param, item.childs[name] || {});
+        if (route[PARAM]) {
+          process(route[PARAM], item.childs);
         }
-        return item;
       };
-
-      const route = routes[method];
-      process(getName(route), route, tree);
+      process(routes[method], tree);
     });
 
-    return print(tree);
+    return print(tree['/']);
   }
 };
