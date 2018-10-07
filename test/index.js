@@ -29,19 +29,19 @@ const handlerIDID = (req, res, next) => {
   res.end(`handlerIDID, ${req.params.alias}`);
 };
 
-// api.forEach((val) => {
-//   app[val[0].toLowerCase()](val[1], handler);
-// });
+api.forEach((val) => {
+  app[val[0].toLowerCase()](val[1], handler);
+});
 
-app
-  .use(send)
-  .get('/test', handler)
-  .use('/test', handlerA)
-  .get('/test/:hello', handler)
-  .get('/users/:group/', handlerID)
-  .get('/users/:group/:id', handlerIDID);
+// app
+//   .use(send)
+//   .get('/test', handler)
+//   .use('/test', handlerA)
+//   .get('/test/:hello', handler)
+//   .get('/users/:group/', handlerID)
+//   .get('/users/:group/:id', handlerIDID);
 
-app.use();
+console.log(app.toString());
 
 let params = {};
 console.log(app.match('GET', '/users/', params));

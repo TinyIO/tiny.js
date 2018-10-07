@@ -9,6 +9,10 @@ const onError = (err, req, res) => {
   res.end((err && err.length) || err.message || STATUS_CODES[code]);
 };
 
+const routers = [];
+
+const flattenRoutes = (route) => {};
+
 class Tiny extends Router {
   constructor(options) {
     super();
@@ -28,7 +32,7 @@ class Tiny extends Router {
     this.server.listen(this.port, this.host);
     this.server.on('request', this.handler);
     this.server.once('listening', () => {
-      this.use();
+      flattenRoutes(this);
       const address = this.server.address();
       callback(address);
     });
@@ -38,6 +42,16 @@ class Tiny extends Router {
 
   Router() {
     return new Router();
+  }
+
+  mount(base, router) {
+    // todo
+  }
+
+  route(basePath) {
+    const router = new Router(basePath);
+    routers.push(router);
+    return router;
   }
 
   handler(req, res) {

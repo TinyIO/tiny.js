@@ -21,8 +21,6 @@ const NAME = Symbol('name');
 const TYPE = Symbol('type');
 const HANDLER = Symbol('handler');
 
-const flattenRoutes = (route) => {};
-
 const strip = (str) => {
   if (str === SEP) return str;
   str.charCodeAt(0) === SLASH && (str = str.substr(1));
@@ -32,7 +30,7 @@ const strip = (str) => {
 
 const split = (str) => ((str = strip(str)) === SEP ? [SEP] : str.split(SEP));
 
-const addRoute = (router, verb, path, ...handlers) => {
+function addRoute(verb, path, ...handlers) {
   handlers.forEach((handle) => {
     if (typeof handle !== 'function') {
       throw new Error(
@@ -41,7 +39,7 @@ const addRoute = (router, verb, path, ...handlers) => {
     }
   });
 
-  const routes = router.routes;
+  const routes = this.routes;
 
   const process = (method) => {
     if (path === SEP) {
@@ -78,7 +76,7 @@ const addRoute = (router, verb, path, ...handlers) => {
               [PARAM]: null
             };
           } else if (current[TYPE] !== PTYPE) {
-            throw new Error('param change type');
+            throw new Error('a param with same path already exist');
           } else if (current[NAME] !== name) {
             throw new Error('param change name');
           }
@@ -140,8 +138,8 @@ const addRoute = (router, verb, path, ...handlers) => {
     process(verb);
   }
 
-  return router;
-};
+  return this;
+}
 
 module.exports = class Router {
   constructor(path = null) {
@@ -156,11 +154,11 @@ module.exports = class Router {
     };
 
     METHODS.forEach((verb) => {
-      const bind = [this, verb];
+      const bind = [verb];
       if (path) {
         bind.push(path);
       }
-      this[verb.toLowerCase()] = addRoute.bind(void 0, ...bind);
+      this[verb.toLowerCase()] = addRoute.bind(this, ...bind);
       this.routes[verb] = {
         [TYPE]: STYPE,
         [NAME]: SEP,
@@ -169,17 +167,11 @@ module.exports = class Router {
       };
     });
 
-    const bind = [this, 'all'];
+    const bind = ['all'];
     if (path) {
       bind.push(path);
     }
-    this.all = addRoute.bind(void 0, ...bind);
-
-    if (!path) {
-      this.route = (basePath) => {
-        if (basePath) return new Router(basePath);
-      };
-    }
+    this.all = addRoute.bind(this, ...bind);
   }
 
   use(base = SEP, ...handlers) {
@@ -190,7 +182,7 @@ module.exports = class Router {
       const routes = this.routes['*'];
       routes[HANDLER] = routes[HANDLER].concat(handlers);
     } else {
-      addRoute(this, '*', base, ...handlers);
+      addRoute.call(this, '*', base, ...handlers);
     }
     return this;
   }
@@ -215,5 +207,61 @@ module.exports = class Router {
       route = out;
     }
     return route[HANDLER];
+  }
+
+  toString() {
+    const print = (route, prefix) => {
+      if (prefix === undefined) prefix = '';
+
+      const childs = Object.keys(route.childs);
+      const methods = Object.keys(route.methods).join(',');
+      const lines = methods.length > 0 ? `${route.name} [${methods}]` : route.name;
+
+      return `${prefix + lines}\n${childs
+        .map((key, ix) => {
+          const child = route.childs[key];
+          const last = ix === childs.length - 1;
+          const more = Object.keys(child.childs).length;
+          const prefix_ = `${prefix + (last ? ' ' : '│')} `;
+
+          return `${prefix + (last ? '└' : '├')}─${more ? '┬' : '─'} ${print(
+            child,
+            prefix_
+          ).slice(prefix.length + 2)}`;
+        })
+        .join('')}`;
+    };
+
+    const routes = this.routes;
+    const tree = {};
+    METHODS.forEach((method) => {
+      const process = (route, obj) => {
+        let name = route[NAME];
+        const type = route[TYPE];
+        if (type === PTYPE) {
+          name = `: ${name}`;
+        } else if (type === ATYPE) {
+          name = `* ${name}`;
+        }
+        const item = obj[name] || {
+          name,
+          methods: {},
+          childs: {}
+        };
+        obj[name] = item;
+        if (route[HANDLER].length > 0) {
+          item.methods[method] = true;
+        }
+        Object.keys(route).forEach((key) => {
+          process(route[key], item.childs);
+        });
+        if (route[PARAM]) {
+          process(route[PARAM], item.childs);
+        }
+      };
+      process(routes[method], tree);
+    });
+
+    return print(tree['/']);
   }
 };
