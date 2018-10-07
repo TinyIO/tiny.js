@@ -211,7 +211,7 @@ module.exports = class Router {
 
   toString() {
     const print = (route, prefix) => {
-      if (prefix === undefined) prefix = '';
+      if (prefix === void 0) prefix = '';
 
       const childs = Object.keys(route.childs);
       const methods = Object.keys(route.methods).join(',');
@@ -234,8 +234,8 @@ module.exports = class Router {
 
     const routes = this.routes;
     const tree = {};
-    METHODS.forEach((method) => {
-      const process = (route, obj) => {
+    Object.keys(routes).forEach((method) => {
+      const getName = (route) => {
         let name = route[NAME];
         const type = route[TYPE];
         if (type === PTYPE) {
@@ -243,25 +243,35 @@ module.exports = class Router {
         } else if (type === ATYPE) {
           name = `* ${name}`;
         }
-        const item = obj[name] || {
-          name,
-          methods: {},
-          childs: {}
-        };
-        obj[name] = item;
+        return name;
+      };
+      const process = (name, route, item) => {
+        item.name = name;
+        item.methods = item.methods || [];
+        item.childs = item.childs || {};
+
         if (route[HANDLER].length > 0) {
           item.methods[method] = true;
         }
+
         Object.keys(route).forEach((key) => {
-          process(route[key], item.childs);
+          const child = route[key];
+          const name = getName(child);
+          item.childs[name] = process(name, child, item.childs[name] || {});
         });
-        if (route[PARAM]) {
-          process(route[PARAM], item.childs);
+
+        const param = route[PARAM];
+        if (param) {
+          const name = getName(param);
+          item.childs[name] = process(name, param, item.childs[name] || {});
         }
+        return item;
       };
-      process(routes[method], tree);
+
+      const route = routes[method];
+      process(getName(route), route, tree);
     });
 
-    return print(tree['/']);
+    return print(tree);
   }
 };

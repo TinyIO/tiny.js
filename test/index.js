@@ -33,8 +33,7 @@ api.forEach((val) => {
   app[val[0].toLowerCase()](val[1], handler);
 });
 
-// app
-//   .use(send)
+app.use('authorizations', send);
 //   .get('/test', handler)
 //   .use('/test', handlerA)
 //   .get('/test/:hello', handler)
