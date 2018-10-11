@@ -122,14 +122,14 @@ module.exports = class Router {
             break;
           }
           case ASTER: {
-            let current = output[PARAM];
+            if (i + 1 !== len) {
+              throw new Error('should be last');
+            }
             const name = element.substr(1);
             if (!name) {
               throw new Error('need param name');
             }
-            if (i + 1 !== len) {
-              throw new Error('should be last');
-            }
+            let current = output[PARAM];
             if (!current) {
               params.forEach((param) => {
                 if (param === name) {
@@ -194,7 +194,7 @@ module.exports = class Router {
 
   match(verb, url, param) {
     const segs = split(url);
-    let route = this.routes[verb];
+    let route = this.ways[verb];
     for (let i = 0, len = segs.length; i < len; i++) {
       const part = segs[i];
       let out = route[part];
@@ -262,13 +262,6 @@ module.exports = class Router {
     // 然后applay自身所有Filter
 
     const perpand = (route, handler) => {
-      {
-        const target = route[HANDLER];
-        if (target.length > 0) {
-          route[HANDLER] = handler.concat(target);
-        }
-      }
-
       Object.keys(route).forEach((key) => {
         const target = route[key][HANDLER];
         if (target.length > 0) {
@@ -280,6 +273,13 @@ module.exports = class Router {
         const target = route[PARAM][HANDLER];
         if (target.length > 0) {
           route[PARAM][HANDLER] = handler.concat(target);
+        }
+      }
+
+      {
+        const target = route[HANDLER];
+        if (target.length > 0) {
+          route[HANDLER] = handler.concat(target);
         }
       }
     };
