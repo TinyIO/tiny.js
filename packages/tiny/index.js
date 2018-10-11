@@ -9,35 +9,23 @@ const onError = (err, req, res) => {
   res.end((err && err.length) || err.message || STATUS_CODES[code]);
 };
 
-const routers = [];
-
-const flattenRoutes = (route) => {};
-
 class Tiny extends Router {
   constructor(options) {
     super();
     ({
-      host: this.host,
-      port: this.port,
       onError: this.onError = onError,
       notFound: this.notFound = onError.bind(void 0, { code: 404 }),
       server: this.server = null
     } = options);
     this.handler = this.handler.bind(this);
     this.match = super.match;
+    this.subRoutes = [];
   }
 
-  run(callback = function cb() {}) {
-    this.server = this.server || createServer();
-    this.server.listen(this.port, this.host);
-    this.server.on('request', this.handler);
-    this.server.once('listening', () => {
-      flattenRoutes(this);
-      const address = this.server.address();
-      callback(address);
-    });
-
-    return this.server;
+  listen() {
+    (this.server = this.server || createServer()).on('request', this.handler);
+    this.server.listen.apply(this.server, arguments);
+    return this;
   }
 
   Router() {
@@ -45,12 +33,17 @@ class Tiny extends Router {
   }
 
   mount(base, router) {
-    // todo
+    if (router.basePath != null) {
+      throw new Error('');
+    }
+    router.basePath = base;
+    this.subRoutes.push(router);
+    return router;
   }
 
   route(basePath) {
     const router = new Router(basePath);
-    routers.push(router);
+    this.subRoutes.push(router);
     return router;
   }
 

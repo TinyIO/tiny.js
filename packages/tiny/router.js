@@ -15,6 +15,9 @@ const METHODS = [
 ];
 
 const EMPTY_ARRAY = [];
+Object.freeze(EMPTY_ARRAY);
+
+const FILTER = Symbol('*');
 
 const PARAM = Symbol('param');
 const NAME = Symbol('name');
@@ -30,122 +33,13 @@ const strip = (str) => {
 
 const split = (str) => ((str = strip(str)) === SEP ? [SEP] : str.split(SEP));
 
-function addRoute(verb, path, ...handlers) {
-  handlers.forEach((handle) => {
-    if (typeof handle !== 'function') {
-      throw new Error(
-        `${verb} route '${path}' requires a [function] but got a [${typeof handle}]`
-      );
-    }
-  });
-
-  const routes = this.routes;
-
-  const process = (method) => {
-    if (path === SEP) {
-      routes[method][HANDLER] = routes[method][HANDLER].concat(handlers);
-      return;
-    }
-
-    const result = routes[method];
-    const segs = split(path);
-    let output = result;
-    const params = [];
-    for (let i = 0, len = segs.length; i < len; i++) {
-      const element = segs[i];
-      const c = element.charCodeAt(0);
-      switch (c) {
-        case COLON: {
-          const name = element.substr(1);
-          if (!name) {
-            throw new Error('need param name');
-          }
-          let current = output[PARAM];
-          if (!current) {
-            params.forEach((param) => {
-              if (param === name) {
-                throw new Error('dup param');
-              }
-            });
-            params.push(name);
-
-            current = output[PARAM] = {
-              [TYPE]: PTYPE,
-              [NAME]: name,
-              [HANDLER]: [],
-              [PARAM]: null
-            };
-          } else if (current[TYPE] !== PTYPE) {
-            throw new Error('a param with same path already exist');
-          } else if (current[NAME] !== name) {
-            throw new Error('param change name');
-          }
-          output = current;
-          break;
-        }
-        case ASTER: {
-          let current = output[PARAM];
-          const name = element.substr(1);
-          if (!name) {
-            throw new Error('need param name');
-          }
-          if (i + 1 !== len) {
-            throw new Error('should be last');
-          }
-          if (!current) {
-            params.forEach((param) => {
-              if (param === name) {
-                throw new Error('dup param');
-              }
-            });
-            params.push(name);
-            current = output[PARAM] = {
-              [TYPE]: ATYPE,
-              [NAME]: name,
-              [HANDLER]: [],
-              [PARAM]: null
-            };
-          } else if (current[TYPE] !== ATYPE) {
-            throw new Error('param change type');
-          } else if (current[NAME] !== name) {
-            throw new Error('param change name');
-          }
-          output = current;
-          break;
-        }
-        default: {
-          let current = output[element];
-          if (!current) {
-            current = output[element] = {
-              [TYPE]: STYPE,
-              [NAME]: element,
-              [HANDLER]: [],
-              [PARAM]: null
-            };
-          }
-          output = current;
-          break;
-        }
-      }
-    }
-
-    output[HANDLER] = output[HANDLER].concat(handlers);
-  };
-
-  if (verb === 'all') {
-    METHODS.forEach(process);
-  } else {
-    process(verb);
-  }
-
-  return this;
-}
-
 module.exports = class Router {
   constructor(path = null) {
+    this.basePath = path;
+    this.ways = {};
     this.routes = {
-      // * for through (aka use) handler
-      '*': {
+      // FILTER(*) for through filter (aka use) handler
+      [FILTER]: {
         [TYPE]: STYPE,
         [NAME]: SEP,
         [HANDLER]: [],
@@ -158,7 +52,7 @@ module.exports = class Router {
       if (path) {
         bind.push(path);
       }
-      this[verb.toLowerCase()] = addRoute.bind(this, ...bind);
+      this[verb.toLowerCase()] = this.add.bind(this, ...bind);
       this.routes[verb] = {
         [TYPE]: STYPE,
         [NAME]: SEP,
@@ -171,18 +65,129 @@ module.exports = class Router {
     if (path) {
       bind.push(path);
     }
-    this.all = addRoute.bind(this, ...bind);
+    this.all = this.add.bind(this, ...bind);
   }
 
-  use(base = SEP, ...handlers) {
+  add(verb, path, ...handlers) {
+    handlers.forEach((handle) => {
+      if (typeof handle !== 'function') {
+        throw new Error(
+          `${verb} route '${path}' requires a [function] but got a [${typeof handle}]`
+        );
+      }
+    });
+
+    const routes = this.routes;
+
+    const parse = (method) => {
+      if (path === SEP) {
+        routes[method][HANDLER] = routes[method][HANDLER].concat(handlers);
+        return;
+      }
+
+      const result = routes[method];
+      const segs = split(path);
+      let output = result;
+      const params = [];
+      for (let i = 0, len = segs.length; i < len; i++) {
+        const element = segs[i];
+        const c = element.charCodeAt(0);
+        switch (c) {
+          case COLON: {
+            const name = element.substr(1);
+            if (!name) {
+              throw new Error('need param name');
+            }
+            let current = output[PARAM];
+            if (!current) {
+              params.forEach((param) => {
+                if (param === name) {
+                  throw new Error('dup param');
+                }
+              });
+              params.push(name);
+
+              current = output[PARAM] = {
+                [TYPE]: PTYPE,
+                [NAME]: name,
+                [HANDLER]: [],
+                [PARAM]: null
+              };
+            } else if (current[TYPE] !== PTYPE) {
+              throw new Error('a param with same path already exist');
+            } else if (current[NAME] !== name) {
+              throw new Error('param change name');
+            }
+            output = current;
+            break;
+          }
+          case ASTER: {
+            let current = output[PARAM];
+            const name = element.substr(1);
+            if (!name) {
+              throw new Error('need param name');
+            }
+            if (i + 1 !== len) {
+              throw new Error('should be last');
+            }
+            if (!current) {
+              params.forEach((param) => {
+                if (param === name) {
+                  throw new Error('dup param');
+                }
+              });
+              params.push(name);
+              current = output[PARAM] = {
+                [TYPE]: ATYPE,
+                [NAME]: name,
+                [HANDLER]: [],
+                [PARAM]: null
+              };
+            } else if (current[TYPE] !== ATYPE) {
+              throw new Error('param change type');
+            } else if (current[NAME] !== name) {
+              throw new Error('param change name');
+            }
+            output = current;
+            break;
+          }
+          default: {
+            let current = output[element];
+            if (!current) {
+              current = output[element] = {
+                [TYPE]: STYPE,
+                [NAME]: element,
+                [HANDLER]: [],
+                [PARAM]: null
+              };
+            }
+            output = current;
+            break;
+          }
+        }
+      }
+
+      output[HANDLER] = output[HANDLER].concat(handlers);
+    };
+
+    if (verb === 'all') {
+      METHODS.forEach(parse);
+    } else {
+      parse(verb);
+    }
+
+    return this;
+  }
+
+  filter(base = SEP, ...handlers) {
     if (typeof base === 'function') {
-      const routes = this.routes['*'];
+      const routes = this.routes[FILTER];
       routes[HANDLER] = routes[HANDLER].concat(base, handlers);
     } else if (base === SEP) {
-      const routes = this.routes['*'];
+      const routes = this.routes[FILTER];
       routes[HANDLER] = routes[HANDLER].concat(handlers);
     } else {
-      addRoute.call(this, '*', base, ...handlers);
+      this.add(FILTER, base, ...handlers);
     }
     return this;
   }
@@ -209,6 +214,83 @@ module.exports = class Router {
     return route[HANDLER];
   }
 
+  build(other) {
+    const routes = this.routes;
+
+    const loop = (output, input) => {
+      Object.keys(input).forEach((key) => {
+        output[key] = this.merge(output[key], input[key]);
+      });
+      output[FILTER] = this.merge(output[FILTER], input[FILTER]);
+    };
+    // 先merge所有subRouter
+
+    loop(this.ways, this.routes);
+
+    if (other) {
+      loop(this.ways, other.routes);
+    }
+
+    // 然后applay自身所有Filter
+    const filter = routes[FILTER];
+
+    // 最后冻结
+  }
+
+  mergeFilter(dest, filter) {
+    const out = {
+      [TYPE]: dest[TYPE],
+      [NAME]: dest[NAME],
+      [HANDLER]: [].concat(dest[HANDLER]),
+      [PARAM]: null
+    };
+
+    const handler = out[HANDLER];
+    if (handler.length > 0) {
+      out[HANDLER] = filter[HANDLER].concat(handler);
+    }
+
+    Object.keys(dest).forEach((key) => {
+      const source = filter[key];
+      if (source) {
+        this.merge(dest[key], source);
+      }
+    });
+    const source = src[PARAM];
+    if (source) {
+      this.merge(dest[PARAM], source);
+    }
+
+    return out;
+  }
+
+  merge(dest, src) {
+    if (!src && !dest) {
+      return null;
+    }
+
+    const out = dest || {
+      [TYPE]: src[TYPE],
+      [NAME]: src[NAME],
+      [HANDLER]: [],
+      [PARAM]: null
+    };
+
+    if (out[TYPE] != src[TYPE]) {
+      throw new Error('type missmatch');
+    }
+
+    out[HANDLER] = out[HANDLER].concat(src[HANDLER]);
+
+    Object.keys(src).forEach((key) => {
+      out[key] = this.merge(out[key], src[key]);
+    });
+
+    out[PARAM] = this.merge(out[PARAM], src[PARAM]);
+
+    return out;
+  }
+
   toString() {
     const print = (route, prefix) => {
       if (prefix === void 0) prefix = '';
@@ -232,34 +314,53 @@ module.exports = class Router {
         .join('')}`;
     };
 
-    const routes = this.routes;
-    const tree = {};
-    Object.keys(routes).forEach((method) => {
-      const process = (route, obj) => {
-        let name = route[NAME];
-        const type = route[TYPE];
-        if (type === PTYPE) {
-          name = `: ${name}`;
-        } else if (type === ATYPE) {
-          name = `* ${name}`;
-        }
-        const item = obj[name] || {
-          name,
-          methods: {},
-          childs: {}
-        };
-        obj[name] = item;
-        if (route[HANDLER].length > 0) {
-          item.methods[method] = true;
-        }
-        Object.keys(route).forEach((key) => {
-          process(route[key], item.childs);
-        });
-        if (route[PARAM]) {
-          process(route[PARAM], item.childs);
-        }
+    const compose = (method, route, obj) => {
+      let name = route[NAME];
+      const type = route[TYPE];
+      if (type === PTYPE) {
+        name = `: ${name}`;
+      } else if (type === ATYPE) {
+        name = `* ${name}`;
+      }
+      const item = obj[name] || {
+        name,
+        methods: {},
+        childs: {}
       };
-      process(routes[method], tree);
+      obj[name] = item;
+      if (route[HANDLER].length > 0) {
+        item.methods[method] = true;
+      }
+      Object.keys(route).forEach((key) => {
+        compose(
+          method,
+          route[key],
+          item.childs
+        );
+      });
+      if (route[PARAM]) {
+        compose(
+          method,
+          route[PARAM],
+          item.childs
+        );
+      }
+    };
+
+    const routes = this.ways;
+    const tree = {};
+
+    compose(
+      '*',
+      routes[FILTER],
+      tree
+    );
+    Object.keys(routes).forEach((method) => {
+      compose(
+        method,
+        routes[method],
+        tree
+      );
     });
 
     return print(tree['/']);

@@ -12,7 +12,7 @@ function onError(err, req, res) {
   res.end('error');
 }
 
-const app = tiny({ onError, port: 3001 });
+const app = tiny({ onError });
 
 const handler = (req, res, next) => {
   res.end(`handler, ${req.params.alias}`);
@@ -30,15 +30,20 @@ const handlerIDID = (req, res, next) => {
 };
 
 api.forEach((val) => {
-  app[val[0].toLowerCase()](val[1], handler);
+  // app[val[0].toLowerCase()](val[1], handler);
 });
 
-app.use('authorizations', send);
-//   .get('/test', handler)
-//   .use('/test', handlerA)
-//   .get('/test/:hello', handler)
-//   .get('/users/:group/', handlerID)
-//   .get('/users/:group/:id', handlerIDID);
+const app2 = tiny({ onError });
+
+app
+  .filter('authorizations', send)
+  .get('/test', handler)
+  .filter('/test', handlerA)
+  .get('/test/:hello', handler);
+
+app2.get('/users/:group/', handlerID).get('/users/:group/:id', handlerIDID);
+
+app.build(app2);
 
 console.log(app.toString());
 
@@ -46,7 +51,7 @@ let params = {};
 console.log(app.match('GET', '/users/', params));
 console.log(JSON.stringify(params));
 params = {};
-console.log(app.match('GET', '/users/1', params));
+console.log(app.match('GET', '/authorizations/1', params));
 console.log(JSON.stringify(params));
 params = {};
 console.log(app.match('GET', '/users/1/2', params));

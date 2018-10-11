@@ -14,12 +14,14 @@
   },
   "scripts": {
     "test": "node test/index.js",
+    "tape": "tape tests/*.js | tap-spec",
     "eslint": "eslint --quiet --fix .",
     "bench": "node test/benchmarks"
   },
   "license": "MIT",
   "devDependencies": {
     "autocannon": "^2.4.1",
+    "axios": "^0.18.0",
     "cli-table": "^0.3.1",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
@@ -33,6 +35,8 @@
     "pancho": "^1.0.2",
     "polka": "^0.5.1",
     "prettier": "^1.14.3",
-    "rayo": "^1.2.4"
+    "rayo": "^1.2.4",
+    "tap-spec": "^5.0.0",
+    "tape": "^4.9.1"
   }
 }
