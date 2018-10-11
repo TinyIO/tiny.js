@@ -197,9 +197,10 @@ tape('tiny::usage::middleware', async (t) => {
       res.end('Hello');
     });
 
-  t.is(app.wares.length, 2, 'added 2 middleware functions');
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
-  const uri = listen(app);
   let r = await axios.get(uri);
   t.is(r.status, 200, '~> received 200 status');
   t.is(r.data, 'Hello', '~> received "Hello" response');
@@ -248,7 +249,9 @@ tape('tiny::usage::middleware (async)', async (t) => {
 
   t.is(app.wares.length, 2, 'added 2 middleware functions');
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
   const r = await axios.get(uri);
   t.is(r.status, 200, '~> received 200 status');
@@ -323,7 +326,9 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
     '~> has middleware groups for `/foo` & `/bar` path matches'
   );
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
   const r1 = await axios.get(uri);
   t.is(r1.status, 200, '~> received 200 status');
@@ -384,7 +389,9 @@ tape('tiny::usage::middleware (wildcard)', async (t) => {
       res.end('hello from wildcard');
     });
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
   expect = '/';
   const r1 = await axios.get(uri);
@@ -426,7 +433,10 @@ tape('tiny::usage::errors', async (t) => {
       res.end('OK');
     });
 
-  const u1 = listen(foo);
+  foo.build();
+  foo.listen(8080, 'localhost');
+  const u1 = 'http://localhost:8080';
+
   await axios.get(u1).catch((err) => {
     const r = err.response;
     t.is(a, 42, 'exits before route handler if middleware error');
@@ -445,7 +455,10 @@ tape('tiny::usage::errors', async (t) => {
       res.end('OK');
     });
 
-  const u2 = listen(bar);
+  bar.build();
+  bar.listen(8080, 'localhost');
+  const u2 = 'http://localhost:8080';
+
   await axios.get(u2).catch((err) => {
     const r = err.response;
     t.is(a, 42, 'exits without running route handler');
@@ -465,7 +478,10 @@ tape('tiny::usage::errors', async (t) => {
       res.end('OK');
     });
 
-  const u3 = listen(baz);
+  baz.build();
+  baz.listen(8080, 'localhost');
+  const u3 = 'http://localhost:8080';
+
   await axios.get(u3).catch((err) => {
     const r = err.response;
     t.is(a, 42, 'exits without running route handler');
@@ -528,7 +544,9 @@ tape('tiny::usage::sub-apps', async (t) => {
     'throws Error when attempting to add route-handler ona path where Tiny (sub)-app exists'
   );
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
   // check sub-app index route
   const r1 = await axios.get(`${uri}/sub`);
@@ -611,7 +629,9 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
     })
     .filter('/api', verify, api);
 
-  const uri = listen(main);
+  main.build();
+  main.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
 
   const r = await axios.get(`${uri}/api/users/BOB`);
   t.is(r.status, 200, '~> received 200 status');
@@ -655,7 +675,10 @@ tape('tiny::options::onError', async (t) => {
 
   t.is(app.onError, foo, 'replaces `app.onError` with the option value');
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
+
   await axios.get(uri).catch((err) => {
     const r = err.response;
     t.is(r.status, 418, '~> response gets the error code');
@@ -679,7 +702,10 @@ tape('tiny::options::onNoMatch', async (t) => {
   t.is(app.onNoMatch, foo, 'replaces `app.onNoMatch` with the option value');
   t.not(app.onError, foo, 'does not affect the `app.onError` handler');
 
-  const uri = listen(app);
+  app.build();
+  app.listen(8080, 'localhost');
+  const uri = 'http://localhost:8080';
+
   await axios.post(uri).catch((err) => {
     const r = err.response;
     t.is(r.status, 405, '~> response gets the error code');

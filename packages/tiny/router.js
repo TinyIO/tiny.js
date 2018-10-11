@@ -215,80 +215,94 @@ module.exports = class Router {
   }
 
   build(other) {
-    const routes = this.routes;
+    const merge = (dest, src) => {
+      if (!src && !dest) {
+        return null;
+      }
+
+      const out = dest || {
+        [TYPE]: src[TYPE],
+        [NAME]: src[NAME],
+        [HANDLER]: [],
+        [PARAM]: null
+      };
+
+      if (out[TYPE] != src[TYPE]) {
+        throw new Error('type missmatch');
+      }
+
+      out[HANDLER] = out[HANDLER].concat(src[HANDLER]);
+
+      Object.keys(src).forEach((key) => {
+        out[key] = merge(out[key], src[key]);
+      });
+
+      out[PARAM] = merge(out[PARAM], src[PARAM]);
+
+      return out;
+    };
 
     const loop = (output, input) => {
       Object.keys(input).forEach((key) => {
-        output[key] = this.merge(output[key], input[key]);
+        output[key] = merge(output[key], input[key]);
       });
-      output[FILTER] = this.merge(output[FILTER], input[FILTER]);
+      output[FILTER] = merge(output[FILTER], input[FILTER]);
     };
+
     // 先merge所有subRouter
 
-    loop(this.ways, this.routes);
+    const ways = (this.ways = {});
+
+    loop(ways, this.routes);
 
     if (other) {
-      loop(this.ways, other.routes);
+      loop(ways, other.routes);
     }
 
     // 然后applay自身所有Filter
-    const filter = routes[FILTER];
+
+    const perpand = (route, handler) => {
+      {
+        const target = route[HANDLER];
+        if (target.length > 0) {
+          route[HANDLER] = handler.concat(target);
+        }
+      }
+
+      Object.keys(route).forEach((key) => {
+        const target = route[key][HANDLER];
+        if (target.length > 0) {
+          route[key][HANDLER] = handler.concat(target);
+        }
+      });
+
+      if (route[PARAM]) {
+        const target = route[PARAM][HANDLER];
+        if (target.length > 0) {
+          route[PARAM][HANDLER] = handler.concat(target);
+        }
+      }
+    };
+
+    const walk = (way, filter) => {
+      const handler = filter[HANDLER];
+      if (way && handler.length > 0) {
+        perpand(way, handler);
+      }
+      Object.keys(filter).forEach((key) => {
+        walk(way[key], filter[key]);
+      });
+      if (filter[PARAM]) {
+        walk(way[PARAM], filter[PARAM]);
+      }
+    };
+
+    const filter = ways[FILTER];
+    Object.keys(ways).forEach((key) => {
+      walk(ways[key], filter);
+    });
 
     // 最后冻结
-  }
-
-  mergeFilter(dest, filter) {
-    const out = {
-      [TYPE]: dest[TYPE],
-      [NAME]: dest[NAME],
-      [HANDLER]: [].concat(dest[HANDLER]),
-      [PARAM]: null
-    };
-
-    const handler = out[HANDLER];
-    if (handler.length > 0) {
-      out[HANDLER] = filter[HANDLER].concat(handler);
-    }
-
-    Object.keys(dest).forEach((key) => {
-      const source = filter[key];
-      if (source) {
-        this.merge(dest[key], source);
-      }
-    });
-    const source = src[PARAM];
-    if (source) {
-      this.merge(dest[PARAM], source);
-    }
-
-    return out;
-  }
-
-  merge(dest, src) {
-    if (!src && !dest) {
-      return null;
-    }
-
-    const out = dest || {
-      [TYPE]: src[TYPE],
-      [NAME]: src[NAME],
-      [HANDLER]: [],
-      [PARAM]: null
-    };
-
-    if (out[TYPE] != src[TYPE]) {
-      throw new Error('type missmatch');
-    }
-
-    out[HANDLER] = out[HANDLER].concat(src[HANDLER]);
-
-    Object.keys(src).forEach((key) => {
-      out[key] = this.merge(out[key], src[key]);
-    });
-
-    out[PARAM] = this.merge(out[PARAM], src[PARAM]);
-
-    return out;
   }
 
   toString() {
