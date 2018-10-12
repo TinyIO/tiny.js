@@ -24,7 +24,7 @@ tape('tiny', (t) => {
 
 tape('tiny::internals', (t) => {
   const app = tiny();
-  const proto = app.__proto__;
+  const proto = Object.getPrototypeOf(app);
 
   t.is(app.server, null, 'app.server is `null` initially (pre-listen)');
   app.listen();

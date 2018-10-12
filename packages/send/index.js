@@ -24,9 +24,7 @@ const send = (payload = '', code = 200, headers = {}) => {
   headers['Content-Length'] = Buffer.byteLength(payload);
 
   this.writeHead(code, headers);
-  this.end(payload);
-
-  return this;
+  return this.end(payload);
 };
 
 module.exports = (req, res, next) => {
