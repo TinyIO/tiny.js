@@ -31,7 +31,7 @@ const strip = (str) => {
   return str.charCodeAt(len) === SLASH ? str.substr(0, len) : str;
 };
 
-const split = (str) => ((str = strip(str)) === SEP ? [SEP] : str.split(SEP));
+const split = (str) => ((str = strip(str)) === SEP ? EMPTY_ARRAY : str.split(SEP));
 
 module.exports = class Router {
   constructor(path = null) {
@@ -262,38 +262,32 @@ module.exports = class Router {
     // 然后applay自身所有Filter
 
     const perpand = (route, handler) => {
-      Object.keys(route).forEach((key) => {
-        const target = route[key][HANDLER];
-        if (target.length > 0) {
-          route[key][HANDLER] = handler.concat(target);
-        }
-      });
-
-      if (route[PARAM]) {
-        const target = route[PARAM][HANDLER];
-        if (target.length > 0) {
-          route[PARAM][HANDLER] = handler.concat(target);
-        }
-      }
-
       {
         const target = route[HANDLER];
         if (target.length > 0) {
           route[HANDLER] = handler.concat(target);
         }
       }
+
+      Object.keys(route).forEach((key) => {
+        perpand(route[key], handler);
+      });
+
+      if (route[PARAM]) {
+        perpand(route[PARAM], handler);
+      }
     };
 
     const walk = (way, filter) => {
-      const handler = filter[HANDLER];
-      if (way && handler.length > 0) {
-        perpand(way, handler);
-      }
       Object.keys(filter).forEach((key) => {
         walk(way[key], filter[key]);
       });
       if (filter[PARAM]) {
         walk(way[PARAM], filter[PARAM]);
+      }
+      const handler = filter[HANDLER];
+      if (way && handler.length > 0) {
+        perpand(way, handler);
       }
     };
 

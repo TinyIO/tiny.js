@@ -58,7 +58,7 @@ tape('tiny::internals', (t) => {
 });
 
 tape('tiny::usage::basic', (t) => {
-  t.plan(1);
+  t.plan(3);
 
   const app = tiny();
   const arr = [['GET', '/'], ['POST', '/users'], ['PUT', '/users/:id']];
@@ -161,7 +161,7 @@ tape('tiny::usage::variadic', async (t) => {
 });
 
 tape('tiny::usage::middleware', async (t) => {
-  t.plan(21);
+  t.plan(20);
 
   const app = tiny()
     .filter((req, res, next) => {
@@ -171,15 +171,26 @@ tape('tiny::usage::middleware', async (t) => {
       (req.two = 'world') && next();
     })
     .filter('/about', (req, res, next) => {
-      t.is(req.one, 'hello', '~> sub-mware runs after first global middleware');
-      t.is(req.two, 'world', '~> sub-mware runs after second global middleware');
-      res.end('About');
+      t.is(req.one, 'hello', '~> sub-mware [/about] runs after first global middleware');
+      t.is(req.two, 'world', '~> sub-mware [/about] runs after second global middleware');
+      next();
     })
     .filter('/subgroup', (req, res, next) => {
       req.subgroup = true;
-      t.is(req.one, 'hello', '~> sub-mware runs after first global middleware');
-      t.is(req.two, 'world', '~> sub-mware runs after second global middleware');
+      t.is(
+        req.one,
+        'hello',
+        '~> sub-mware [/subgroup] runs after first global middleware'
+      );
+      t.is(
+        req.two,
+        'world',
+        '~> sub-mware [/subgroup] runs after second global middleware'
+      );
       next();
+    })
+    .get('/about', (req, res) => {
+      res.end('About');
     })
     .post('/subgroup', (req, res) => {
       t.is(req.subgroup, true, '~~> POST /subgroup ran after its shared middleware');
@@ -222,7 +233,7 @@ tape('tiny::usage::middleware', async (t) => {
 });
 
 tape('tiny::usage::middleware (async)', async (t) => {
-  t.plan(7);
+  t.plan(6);
 
   const app = tiny()
     .filter((req, res, next) => {
@@ -247,8 +258,6 @@ tape('tiny::usage::middleware (async)', async (t) => {
       res.end('Hello');
     });
 
-  t.is(app.wares.length, 2, 'added 2 middleware functions');
-
   app.build();
   app.listen(8080, 'localhost');
   const uri = 'http://localhost:8080';
@@ -262,7 +271,7 @@ tape('tiny::usage::middleware (async)', async (t) => {
 });
 
 tape('tiny::usage::middleware (basenames)', async (t) => {
-  t.plan(40);
+  t.plan(37);
 
   let chk = false;
   const aaa = (req, res, next) => ((req.aaa = 'aaa'), next());
@@ -316,15 +325,6 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.is(req.bbb, 'bbb', '~> runs after `bbb` global middleware');
       res.end('hello from main');
     });
-
-  t.is(app.wares.length, 3, 'added 3 global middleware functions');
-  const keys = Object.keys(app.bwares);
-  t.is(keys.length, 2, 'added 2 basename middleware groups');
-  t.deepEqual(
-    keys,
-    ['/foo', '/bar'],
-    '~> has middleware groups for `/foo` & `/bar` path matches'
-  );
 
   app.build();
   app.listen(8080, 'localhost');
@@ -381,7 +381,7 @@ tape('tiny::usage::middleware (wildcard)', async (t) => {
       );
       res.end('hello from bar');
     })
-    .get('*', (req, res) => {
+    .get('*all', (req, res) => {
       // runs 3x
       t.pass('runs the MAIN app handler for GET /*');
       t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
