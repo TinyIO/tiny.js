@@ -22,9 +22,9 @@ class Tiny extends Router {
     this.subRoutes = [];
   }
 
-  listen() {
+  listen(...args) {
     (this.server = this.server || createServer()).on('request', this.handler);
-    this.server.listen.apply(this.server, arguments);
+    this.server.listen(...args);
     return this;
   }
 
