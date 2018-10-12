@@ -25,6 +25,8 @@ const send = (payload = '', code = 200, headers = {}) => {
 
   this.writeHead(code, headers);
   this.end(payload);
+
+  return this;
 };
 
 module.exports = (req, res, next) => {
