@@ -2,17 +2,7 @@ const SEP = '/';
 const [STYPE, PTYPE, ATYPE] = [0, 1, 2];
 const [SLASH, COLON, ASTER] = [47, 58, 42, 63]; // / : *
 
-const METHODS = [
-  'CONNECT',
-  'DELETE',
-  'GET',
-  'HEAD',
-  'OPTIONS',
-  'PATCH',
-  'POST',
-  'PUT',
-  'TRACE'
-];
+const METHODS = ['CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'];
 
 const EMPTY_ARRAY = [];
 Object.freeze(EMPTY_ARRAY);
@@ -227,7 +217,7 @@ module.exports = class Router {
         [PARAM]: null
       };
 
-      if (out[TYPE] != src[TYPE]) {
+      if (out[TYPE] !== src[TYPE]) {
         throw new Error('type missmatch');
       }
 
@@ -314,10 +304,9 @@ module.exports = class Router {
           const more = Object.keys(child.childs).length;
           const prefix_ = `${prefix + (last ? ' ' : '│')} `;
 
-          return `${prefix + (last ? '└' : '├')}─${more ? '┬' : '─'} ${print(
-            child,
-            prefix_
-          ).slice(prefix.length + 2)}`;
+          return `${prefix + (last ? '└' : '├')}─${more ? '┬' : '─'} ${print(child, prefix_).slice(
+            prefix.length + 2
+          )}`;
         })
         .join('')}`;
     };

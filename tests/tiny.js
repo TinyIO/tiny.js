@@ -28,10 +28,7 @@ tape('tiny::internals', (t) => {
 
   t.is(app.server, null, 'app.server is `null` initially (pre-listen)');
   app.listen();
-  t.ok(
-    app.server instanceof http.Server,
-    '~> app.server becomes HTTP server (post-listen)'
-  );
+  t.ok(app.server instanceof http.Server, '~> app.server becomes HTTP server (post-listen)');
   app.server.close();
 
   t.isFunction(app.onError, 'app.onError is a function');
@@ -49,7 +46,7 @@ tape('tiny::internals', (t) => {
 
   METHODS.forEach((k) => {
     t.isFunction(app[k.toLowerCase()], `app.${k.toLowerCase()} is a function`);
-    if (k != 'all') {
+    if (k !== 'all') {
       t.isEmpty(app.routes[k], `~> routes[${k}] is empty`);
     }
   });
@@ -92,7 +89,7 @@ tape('tiny::usage::variadic', async (t) => {
     next();
   }
 
-  function onError(err, req, res, next) {
+  function onError(err, req, res) {
     t.pass('2nd "/err" handler threw error!');
     t.is(err, 'error', '~> receives the "error" message');
     t.is(req.foo, 500, '~> foo() ran twice');
@@ -165,10 +162,12 @@ tape('tiny::usage::middleware', async (t) => {
 
   const app = tiny()
     .filter((req, res, next) => {
-      (req.one = 'hello') && next();
+      req.one = 'hello';
+      next();
     })
     .filter('/', (req, res, next) => {
-      (req.two = 'world') && next();
+      req.two = 'world';
+      next();
     })
     .filter('/about', (req, res, next) => {
       t.is(req.one, 'hello', '~> sub-mware [/about] runs after first global middleware');
@@ -177,16 +176,8 @@ tape('tiny::usage::middleware', async (t) => {
     })
     .filter('/subgroup', (req, res, next) => {
       req.subgroup = true;
-      t.is(
-        req.one,
-        'hello',
-        '~> sub-mware [/subgroup] runs after first global middleware'
-      );
-      t.is(
-        req.two,
-        'world',
-        '~> sub-mware [/subgroup] runs after second global middleware'
-      );
+      t.is(req.one, 'hello', '~> sub-mware [/subgroup] runs after first global middleware');
+      t.is(req.two, 'world', '~> sub-mware [/subgroup] runs after second global middleware');
       next();
     })
     .get('/about', (req, res) => {
@@ -238,7 +229,7 @@ tape('tiny::usage::middleware (async)', async (t) => {
   const app = tiny()
     .filter((req, res, next) => {
       sleep(10)
-        .then((_) => {
+        .then(() => {
           req.foo = 123;
         })
         .then(next);
@@ -274,17 +265,23 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
   t.plan(37);
 
   let chk = false;
-  const aaa = (req, res, next) => ((req.aaa = 'aaa'), next());
-  const bbb = (req, res, next) => ((req.bbb = 'bbb'), next());
-  const bar = (req, res, next) => ((req.bar = 'bar'), next());
+  const aaa = (req, res, next) => {
+    req.aaa = 'aaa';
+    next();
+  };
+  const bbb = (req, res, next) => {
+    req.bbb = 'bbb';
+    next();
+  };
+  const bar = (req, res, next) => {
+    req.bar = 'bar';
+    next();
+  };
   const ccc = (req, res, next) => {
     if (chk) {
       // runs 2x
       t.true(req.url.includes('/foo'), 'defers `bware` URL mutation until after global');
-      t.true(
-        req.path.includes('/foo'),
-        'defers `bware` PATH mutation until after global'
-      );
+      t.true(req.path.includes('/foo'), 'defers `bware` PATH mutation until after global');
       chk = false;
     }
     next();
@@ -299,10 +296,7 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.is(req.bbb, 'bbb', '~> runs after `bbb` global middleware');
       t.false(req.url.includes('foo'), '~> strips "foo" base from `req.url`');
       t.false(req.path.includes('foo'), '~> strips "foo" base from `req.path`');
-      t.ok(
-        req.originalUrl.includes('foo'),
-        '~> keeps "foo" base within `req.originalUrl`'
-      );
+      t.ok(req.originalUrl.includes('foo'), '~> keeps "foo" base within `req.originalUrl`');
       res.end('hello from foo');
     })
     .filter('bar', bar, (req, res) => {
@@ -312,10 +306,7 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.is(req.bar, 'bar', '~> runs after `bar` SELF-GROUPED middleware');
       t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
       t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
-      t.ok(
-        req.originalUrl.includes('bar'),
-        '~> keeps "bar" base within `req.originalUrl`'
-      );
+      t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
       t.is(req.path, '/hello', '~> matches expected `req.path` value');
       res.end('hello from bar');
     })
@@ -375,10 +366,7 @@ tape('tiny::usage::middleware (wildcard)', async (t) => {
       t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
       t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
       t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
-      t.ok(
-        req.originalUrl.includes('bar'),
-        '~> keeps "bar" base within `req.originalUrl`'
-      );
+      t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
       res.end('hello from bar');
     })
     .get('*all', (req, res) => {
@@ -598,11 +586,7 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
       t.is(req.verify, true, '~> API middleware ran after VERIFY');
       t.is(req.api, true, '~> GET API/users/:id #1 ran after API');
       t.is(req.users, true, '~> GET API/users/:id #1 ran after API/users');
-      t.is(
-        req.params.id,
-        'BOB',
-        '~> GET /API/users/:id #1 received the `params.id` value'
-      );
+      t.is(req.params.id, 'BOB', '~> GET /API/users/:id #1 received the `params.id` value');
       req.userid = true;
       next();
     },
@@ -612,11 +596,7 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
       t.is(req.api, true, '~> GET API/users/:id #2 ran after API');
       t.is(req.users, true, '~> GET API/users/:id #2 ran after API/users');
       t.is(req.userid, true, '~> GET API/users/:id #2 ran after GET API/users/:id #1');
-      t.is(
-        req.params.id,
-        'BOB',
-        '~> GET /API/users/:id #2 received the `params.id` value'
-      );
+      t.is(req.params.id, 'BOB', '~> GET /API/users/:id #2 received the `params.id` value');
       res.end(`Hello, ${req.params.id}`);
     }
   );
@@ -646,11 +626,7 @@ tape('tiny::options::server', (t) => {
   t.same(app.server, server, '~> store custom server internally as is');
 
   app.listen();
-  t.same(
-    server._events.request,
-    app.handler,
-    '~> attach `Tiny.handler` to custom server'
-  );
+  t.same(server._events.request, app.handler, '~> attach `Tiny.handler` to custom server');
 
   app.server.close();
   t.end();
@@ -697,7 +673,7 @@ tape('tiny::options::onNoMatch', async (t) => {
     res.end('prefer: Method Not Found');
   };
 
-  const app = tiny({ onNoMatch: foo }).get('/', (_) => {});
+  const app = tiny({ onNoMatch: foo }).get('/', () => {});
 
   t.is(app.onNoMatch, foo, 'replaces `app.onNoMatch` with the option value');
   t.not(app.onError, foo, 'does not affect the `app.onError` handler');
@@ -709,11 +685,7 @@ tape('tiny::options::onNoMatch', async (t) => {
   await axios.post(uri).catch((err) => {
     const r = err.response;
     t.is(r.status, 405, '~> response gets the error code');
-    t.is(
-      r.data,
-      'prefer: Method Not Found',
-      '~> response gets the formatted error message'
-    );
+    t.is(r.data, 'prefer: Method Not Found', '~> response gets the formatted error message');
     app.server.close();
   });
 });

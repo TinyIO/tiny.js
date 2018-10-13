@@ -1,11 +1,8 @@
 /* eslint no-console: 0 */
 
-const express = require('express');
 const tiny = require('../packages/tiny');
 const send = require('../packages/send');
-const api = require('./assets/github-api');
-
-const expApp = express();
+// const api = require('./assets/github-api');
 
 function onError(err, req, res) {
   console.log(err);
@@ -14,24 +11,24 @@ function onError(err, req, res) {
 
 const app = tiny({ onError });
 
-const handler = (req, res, next) => {
+const handler = (req, res) => {
   res.end(`handler, ${req.params.alias}`);
 };
 
-const handlerA = (req, res, next) => {
+const handlerA = (req, res) => {
   res.end(`handlerA, ${req.params.alias}`);
 };
-const handlerID = (req, res, next) => {
+const handlerID = (req, res) => {
   res.end(`handlerID, ${req.params.alias}`);
 };
 
-const handlerIDID = (req, res, next) => {
+const handlerIDID = (req, res) => {
   res.end(`handlerIDID, ${req.params.alias}`);
 };
 
-api.forEach((val) => {
-  // app[val[0].toLowerCase()](val[1], handler);
-});
+// api.forEach((val) => {
+//   app[val[0].toLowerCase()](val[1], handler);
+// });
 
 const app2 = tiny({ onError });
 

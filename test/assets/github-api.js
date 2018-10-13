@@ -6,11 +6,7 @@ module.exports = [
   ['PUT', '/authorizations/clients/:client_id', '/authorizations/clients/12345'],
   ['PATCH', '/authorizations/:id', '/authorizations/233'],
   ['DELETE', '/authorizations/:id', '/authorizations/377'],
-  [
-    'GET',
-    '/applications/:client_id/tokens/:access_token',
-    '/applications/233/tokens/12345tokens'
-  ],
+  ['GET', '/applications/:client_id/tokens/:access_token', '/applications/233/tokens/12345tokens'],
   ['DELETE', '/applications/:client_id/tokens', '/applications/377/tokens'],
   [
     'DELETE',
@@ -35,21 +31,9 @@ module.exports = [
   ['PUT', '/repos/:owner/:repo/notifications', '/repos/tinyio/router/notifications'],
   ['GET', '/notifications/threads/:id', '/notifications/threads/233'],
   ['PATCH', '/notifications/threads/:id', '/notifications/threads/233'],
-  [
-    'GET',
-    '/notifications/threads/:id/subscription',
-    '/notifications/threads/377/subscription'
-  ],
-  [
-    'PUT',
-    '/notifications/threads/:id/subscription',
-    '/notifications/threads/610/subscription'
-  ],
-  [
-    'DELETE',
-    '/notifications/threads/:id/subscription',
-    '/notifications/threads/233/subscription'
-  ],
+  ['GET', '/notifications/threads/:id/subscription', '/notifications/threads/377/subscription'],
+  ['PUT', '/notifications/threads/:id/subscription', '/notifications/threads/610/subscription'],
+  ['DELETE', '/notifications/threads/:id/subscription', '/notifications/threads/233/subscription'],
   ['GET', '/repos/:owner/:repo/stargazers', '/repos/tinyio/tiny/stargazers'],
   ['GET', '/users/:user/starred', '/users/fundon/starred'],
   ['GET', '/user/starred', '/user/starred'],
@@ -61,11 +45,7 @@ module.exports = [
   ['GET', '/user/subscriptions', '/user/subscriptions'],
   ['GET', '/repos/:owner/:repo/subscription', '/repos/tinyio/router-mapper/subscription'],
   ['PUT', '/repos/:owner/:repo/subscription', '/repos/tinyio/router-mapper/subscription'],
-  [
-    'DELETE',
-    '/repos/:owner/:repo/subscription',
-    '/repos/tinyio/router-mapper/subscription'
-  ],
+  ['DELETE', '/repos/:owner/:repo/subscription', '/repos/tinyio/router-mapper/subscription'],
   ['GET', '/user/subscriptions/:owner/:repo', '/user/subscriptions/tinyio/tiny'],
   ['PUT', '/user/subscriptions/:owner/:repo', '/user/subscriptions/tinyio/tiny'],
   ['DELETE', '/user/subscriptions/:owner/:repo', '/user/subscriptions/tinyio/tiny'],
@@ -87,11 +67,7 @@ module.exports = [
   // Git Data
   ['GET', '/repos/:owner/:repo/git/blobs/:sha', '/repos/tinyio/tiny/git/blobs/abcdefgh'],
   ['POST', '/repos/:owner/:repo/git/blobs', '/repos/tinyio/tiny/git/blobs'],
-  [
-    'GET',
-    '/repos/:owner/:repo/git/commits/:sha',
-    '/repos/tinyio/tiny/git/commits/abcdefgh'
-  ],
+  ['GET', '/repos/:owner/:repo/git/commits/:sha', '/repos/tinyio/tiny/git/commits/abcdefgh'],
   ['POST', '/repos/:owner/:repo/git/commits', '/repos/tinyio/tiny/git/commits'],
   ['GET', '/repos/:owner/:repo/git/refs/*ref', '/repos/tinyio/tiny/git/refs/asdf'],
   ['GET', '/repos/:owner/:repo/git/refs', '/repos/tinyio/tiny/git/refs'],
@@ -112,78 +88,30 @@ module.exports = [
   ['POST', '/repos/:owner/:repo/issues', '/repos/tinyio/tiny/issues'],
   ['PATCH', '/repos/:owner/:repo/issues/:number', '/repos/tinyio/tiny/issues/377'],
   ['GET', '/repos/:owner/:repo/assignees', '/repos/tinyio/tiny/assignees'],
-  [
-    'GET',
-    '/repos/:owner/:repo/assignees/:assignee',
-    '/repos/tinyio/tiny/assignees/31231'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/issues/:number/comments',
-    '/repos/tinyio/tiny/issues/610/comments'
-  ],
+  ['GET', '/repos/:owner/:repo/assignees/:assignee', '/repos/tinyio/tiny/assignees/31231'],
+  ['GET', '/repos/:owner/:repo/issues/:number/comments', '/repos/tinyio/tiny/issues/610/comments'],
   ['GET', '/repos/:owner/:repo/issues/comments', '/repos/tinyio/tiny/issues/comments'],
-  [
-    'GET',
-    '/repos/:owner/:repo/issues/comments/:id',
-    '/repos/tinyio/tiny/issues/comments/233'
-  ],
-  [
-    'POST',
-    '/repos/:owner/:repo/issues/:number/comments',
-    '/repos/tinyio/tiny/issues/377/comments'
-  ],
-  [
-    'PATCH',
-    '/repos/:owner/:repo/issues/comments/:id',
-    '/repos/tinyio/tiny/issues/comments/233'
-  ],
-  [
-    'DELETE',
-    '/repos/:owner/:repo/issues/comments/:id',
-    '/repos/tinyio/tiny/issues/comments/233'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/issues/:number/events',
-    '/repos/tinyio/tiny/issues/233/events'
-  ],
+  ['GET', '/repos/:owner/:repo/issues/comments/:id', '/repos/tinyio/tiny/issues/comments/233'],
+  ['POST', '/repos/:owner/:repo/issues/:number/comments', '/repos/tinyio/tiny/issues/377/comments'],
+  ['PATCH', '/repos/:owner/:repo/issues/comments/:id', '/repos/tinyio/tiny/issues/comments/233'],
+  ['DELETE', '/repos/:owner/:repo/issues/comments/:id', '/repos/tinyio/tiny/issues/comments/233'],
+  ['GET', '/repos/:owner/:repo/issues/:number/events', '/repos/tinyio/tiny/issues/233/events'],
   ['GET', '/repos/:owner/:repo/issues/events', '/repos/tinyio/tiny/issues/events'],
-  [
-    'GET',
-    '/repos/:owner/:repo/issues/events/:id',
-    '/repos/tinyio/tiny/issues/events/233'
-  ],
+  ['GET', '/repos/:owner/:repo/issues/events/:id', '/repos/tinyio/tiny/issues/events/233'],
   ['GET', '/repos/:owner/:repo/labels', '/repos/tinyio/tiny/labels'],
   ['GET', '/repos/:owner/:repo/labels/:name', '/repos/tinyio/tiny/labels/help'],
   ['POST', '/repos/:owner/:repo/labels', '/repos/tinyio/tiny/labels'],
   ['PATCH', '/repos/:owner/:repo/labels/:name', '/repos/tinyio/tiny/labels/hello'],
   ['DELETE', '/repos/:owner/:repo/labels/:name', '/repos/tinyio/tiny/labels/iojs'],
-  [
-    'GET',
-    '/repos/:owner/:repo/issues/:number/labels',
-    '/repos/tinyio/tiny/issues/388/labels'
-  ],
-  [
-    'POST',
-    '/repos/:owner/:repo/issues/:number/labels',
-    '/repos/tinyio/tiny/issues/388/labels'
-  ],
+  ['GET', '/repos/:owner/:repo/issues/:number/labels', '/repos/tinyio/tiny/issues/388/labels'],
+  ['POST', '/repos/:owner/:repo/issues/:number/labels', '/repos/tinyio/tiny/issues/388/labels'],
   [
     'DELETE',
     '/repos/:owner/:repo/issues/:number/labels/:name',
     '/repos/tinyio/tiny/issues/233/labels/help'
   ],
-  [
-    'PUT',
-    '/repos/:owner/:repo/issues/:number/labels',
-    '/repos/tinyio/tiny/issues/233/labels'
-  ],
-  [
-    'DELETE',
-    '/repos/:owner/:repo/issues/:number/labels',
-    '/repos/tinyio/tiny/issues/399/labels'
-  ],
+  ['PUT', '/repos/:owner/:repo/issues/:number/labels', '/repos/tinyio/tiny/issues/233/labels'],
+  ['DELETE', '/repos/:owner/:repo/issues/:number/labels', '/repos/tinyio/tiny/issues/399/labels'],
   [
     'GET',
     '/repos/:owner/:repo/milestones/:number/labels',
@@ -192,16 +120,8 @@ module.exports = [
   ['GET', '/repos/:owner/:repo/milestones', '/repos/tinyio/tiny/milestones'],
   ['GET', '/repos/:owner/:repo/milestones/:number', '/repos/tinyio/tiny/milestones/1024'],
   ['POST', '/repos/:owner/:repo/milestones', '/repos/tinyio/tiny/milestones'],
-  [
-    'PATCH',
-    '/repos/:owner/:repo/milestones/:number',
-    '/repos/tinyio/tiny/milestones/1024'
-  ],
-  [
-    'DELETE',
-    '/repos/:owner/:repo/milestones/:number',
-    '/repos/tinyio/tiny/milestones/233'
-  ],
+  ['PATCH', '/repos/:owner/:repo/milestones/:number', '/repos/tinyio/tiny/milestones/1024'],
+  ['DELETE', '/repos/:owner/:repo/milestones/:number', '/repos/tinyio/tiny/milestones/233'],
 
   // Miscellaneous
   ['GET', '/emojis', '/emojis'],
@@ -244,42 +164,14 @@ module.exports = [
   ['GET', '/repos/:owner/:repo/pulls/:number', '/repos/tinyio/tiny/pulls/233'],
   ['POST', '/repos/:owner/:repo/pulls', '/repos/tinyio/tiny/pulls'],
   ['PATCH', '/repos/:owner/:repo/pulls/:number', '/repos/tinyio/tiny/pulls/233'],
-  [
-    'GET',
-    '/repos/:owner/:repo/pulls/:number/commits',
-    '/repos/tinyio/tiny/pulls/233/commits'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/pulls/:number/files',
-    '/repos/tinyio/tiny/pulls/233/files'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/pulls/:number/merge',
-    '/repos/tinyio/tiny/pulls/233/merge'
-  ],
-  [
-    'PUT',
-    '/repos/:owner/:repo/pulls/:number/merge',
-    '/repos/tinyio/tiny/pulls/233/merge'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/pulls/:number/comments',
-    '/repos/tinyio/tiny/pulls/233/comments'
-  ],
+  ['GET', '/repos/:owner/:repo/pulls/:number/commits', '/repos/tinyio/tiny/pulls/233/commits'],
+  ['GET', '/repos/:owner/:repo/pulls/:number/files', '/repos/tinyio/tiny/pulls/233/files'],
+  ['GET', '/repos/:owner/:repo/pulls/:number/merge', '/repos/tinyio/tiny/pulls/233/merge'],
+  ['PUT', '/repos/:owner/:repo/pulls/:number/merge', '/repos/tinyio/tiny/pulls/233/merge'],
+  ['GET', '/repos/:owner/:repo/pulls/:number/comments', '/repos/tinyio/tiny/pulls/233/comments'],
   ['GET', '/repos/:owner/:repo/pulls/comments', '/repos/tinyio/tiny/pulls/comments'],
-  [
-    'GET',
-    '/repos/:owner/:repo/pulls/comments/:number',
-    '/repos/tinyio/tiny/pulls/comments/233'
-  ],
-  [
-    'PUT',
-    '/repos/:owner/:repo/pulls/:number/comments',
-    '/repos/tinyio/tiny/pulls/233/comments'
-  ],
+  ['GET', '/repos/:owner/:repo/pulls/comments/:number', '/repos/tinyio/tiny/pulls/comments/233'],
+  ['PUT', '/repos/:owner/:repo/pulls/:number/comments', '/repos/tinyio/tiny/pulls/233/comments'],
   [
     'PATCH',
     '/repos/:owner/:repo/pulls/comments/:number',
@@ -308,21 +200,9 @@ module.exports = [
   ['GET', '/repos/:owner/:repo/branches/:branch', '/repos/tinyio/tiny/branches/master'],
   ['DELETE', '/repos/:owner/:repo', '/repos/tinyio/tiny'],
   ['GET', '/repos/:owner/:repo/collaborators', '/repos/tinyio/tiny/collaborators'],
-  [
-    'GET',
-    '/repos/:owner/:repo/collaborators/:user',
-    '/repos/tinyio/tiny/collaborators/fundon'
-  ],
-  [
-    'PUT',
-    '/repos/:owner/:repo/collaborators/:user',
-    '/repos/tinyio/tiny/collaborators/fundon'
-  ],
-  [
-    'DELETE',
-    '/repos/:owner/:repo/collaborators/:user',
-    '/repos/tinyio/tiny/collaborators/fundon'
-  ],
+  ['GET', '/repos/:owner/:repo/collaborators/:user', '/repos/tinyio/tiny/collaborators/fundon'],
+  ['PUT', '/repos/:owner/:repo/collaborators/:user', '/repos/tinyio/tiny/collaborators/fundon'],
+  ['DELETE', '/repos/:owner/:repo/collaborators/:user', '/repos/tinyio/tiny/collaborators/fundon'],
   ['GET', '/repos/:owner/:repo/comments', '/repos/tinyio/tiny/comments'],
   [
     'GET',
@@ -366,31 +246,11 @@ module.exports = [
   ['POST', '/repos/:owner/:repo/releases', '/repos/trejs/tiny/releases'],
   ['PATCH', '/repos/:owner/:repo/releases/:id', '/repos/tinyio/tiny/releases/231'],
   ['DELETE', '/repos/:owner/:repo/releases/:id', '/repos/tinyio/tiny/releases/231'],
-  [
-    'GET',
-    '/repos/:owner/:repo/releases/:id/assets',
-    '/repos/tinyio/tiny/releases/233/assets'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/stats/contributors',
-    '/repos/tinyio/tiny/stats/contributors'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/stats/commit_activity',
-    '/repos/trejs/tiny/stats/commit_activity'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/stats/code_frequency',
-    '/repos/tinyio/tiny/stats/code_frequency'
-  ],
-  [
-    'GET',
-    '/repos/:owner/:repo/stats/participation',
-    '/repos/tinyio/tiny/stats/participation'
-  ],
+  ['GET', '/repos/:owner/:repo/releases/:id/assets', '/repos/tinyio/tiny/releases/233/assets'],
+  ['GET', '/repos/:owner/:repo/stats/contributors', '/repos/tinyio/tiny/stats/contributors'],
+  ['GET', '/repos/:owner/:repo/stats/commit_activity', '/repos/trejs/tiny/stats/commit_activity'],
+  ['GET', '/repos/:owner/:repo/stats/code_frequency', '/repos/tinyio/tiny/stats/code_frequency'],
+  ['GET', '/repos/:owner/:repo/stats/participation', '/repos/tinyio/tiny/stats/participation'],
   ['GET', '/repos/:owner/:repo/stats/punch_card', '/repos/tinyio/tiny/stats/punch_card'],
   ['GET', '/repos/:owner/:repo/statuses/:ref', '/repos/tinyio/tiny/statuses/dev'],
   ['POST', '/repos/:owner/:repo/statuses/:ref', '/repos/tinyio/tiny/statuses/master'],

@@ -9,9 +9,7 @@ const nap = require('pancho');
 const Table = require('cli-table');
 const { fork } = require('child_process');
 
-const files = fs
-  .readdirSync(`${__dirname}/cases`)
-  .filter((file) => file.match(/(.+)\.js$/));
+const files = fs.readdirSync(`${__dirname}/cases`).filter((file) => file.match(/(.+)\.js$/));
 
 const argv = minimist(process.argv.slice(2));
 const cannon = (title = null) =>
