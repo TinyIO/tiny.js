@@ -38,10 +38,7 @@ module.exports = class Router {
     };
 
     METHODS.forEach((verb) => {
-      const bind = [verb];
-      if (path) {
-        bind.push(path);
-      }
+      const bind = path ? [verb, path] : [verb];
       this[verb.toLowerCase()] = this.add.bind(this, ...bind);
       this.routes[verb] = {
         [TYPE]: STYPE,
@@ -51,10 +48,7 @@ module.exports = class Router {
       };
     });
 
-    const bind = ['all'];
-    if (path) {
-      bind.push(path);
-    }
+    const bind = path ? ['all', path] : ['all'];
     this.all = this.add.bind(this, ...bind);
   }
 
@@ -127,6 +121,7 @@ module.exports = class Router {
                 }
               });
               params.push(name);
+
               current = output[PARAM] = {
                 [TYPE]: ATYPE,
                 [NAME]: name,

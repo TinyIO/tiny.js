@@ -127,7 +127,7 @@ tape('tiny::usage::variadic', async (t) => {
       '/err',
       foo,
       (req, res, next) => {
-        if (true) next('error');
+        next('error');
       },
       (req, res) => {
         t.pass('SHOULD NOT RUN');
@@ -149,9 +149,9 @@ tape('tiny::usage::variadic', async (t) => {
   t.is(r.data, 'two', '~> received "two" response');
 
   await axios.get(`${uri}/err`).catch((err) => {
-    const r = err.response;
-    t.is(r.status, 400, '~> received 400 status');
-    t.is(r.data, 'error', '~> received "error" response');
+    const resp = err.response;
+    t.is(resp.status, 400, '~> received 400 status');
+    t.is(resp.data, 'error', '~> received "error" response');
   });
 
   app.server.close();
@@ -163,7 +163,7 @@ tape('tiny::usage::middleware', async (t) => {
   const app = tiny()
     .filter((req, res, next) => {
       req.one = 'hello';
-      next();
+      return next();
     })
     .filter('/', (req, res, next) => {
       req.two = 'world';
@@ -227,20 +227,20 @@ tape('tiny::usage::middleware (async)', async (t) => {
   t.plan(6);
 
   const app = tiny()
-    .filter((req, res, next) => {
+    .filter((req, res, next) =>
       sleep(10)
         .then(() => {
           req.foo = 123;
         })
-        .then(next);
-    })
-    .filter((req, res, next) => {
+        .then(next)
+    )
+    .filter((req, res, next) =>
       sleep(1)
-        .then((_) => {
+        .then(() => {
           req.bar = 456;
         })
-        .then(next);
-    })
+        .then(next)
+    )
     .get('/', (req, res) => {
       t.pass('~> matches the GET(/) route');
       t.is(req.foo, 123, '~> route handler runs after first middleware');
@@ -356,7 +356,7 @@ tape('tiny::usage::middleware (wildcard)', async (t) => {
   t.plan(29);
 
   let expect;
-  const foo = (req, res, next) => ((req.foo = 'foo'), next());
+  const foo = (req, res, next) => (req.foo = 'foo') && next();
 
   const app = tiny()
     .filter(foo) // global
@@ -414,7 +414,8 @@ tape('tiny::usage::errors', async (t) => {
   // next(Error)
   const foo = tiny()
     .filter((req, res, next) => {
-      (a += 1) && next(new Error('boo'));
+      a += 1;
+      return next(new Error('boo'));
     })
     .get('/', (req, res) => {
       a = 0; // wont run
@@ -435,9 +436,7 @@ tape('tiny::usage::errors', async (t) => {
 
   // next(string)
   const bar = tiny()
-    .filter((_, r, next) => {
-      next('boo~!');
-    })
+    .filter((_, r, next) => next('boo~!'))
     .get('/', (_, res) => {
       a = 123; // wont run
       res.end('OK');
@@ -459,11 +458,11 @@ tape('tiny::usage::errors', async (t) => {
   const baz = tiny()
     .filter((_, res) => {
       res.statusCode = 501;
-      res.end('oh dear');
+      return res.end('oh dear');
     })
     .get('/', (_, res) => {
       a = 42; // wont run
-      res.end('OK');
+      return res.end('OK');
     });
 
   baz.build();
@@ -568,7 +567,7 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
     t.is(req.main, true, '~> API middleware ran after MAIN');
     t.is(req.verify, true, '~> API middleware ran after VERIFY');
     req.api = true;
-    next();
+    return next();
   });
 
   api.filter('/users', (req, res, next) => {
@@ -605,7 +604,7 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
   const main = tiny()
     .filter((req, res, next) => {
       req.main = true;
-      next();
+      return next();
     })
     .filter('/api', verify, api);
 

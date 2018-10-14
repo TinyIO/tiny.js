@@ -28,7 +28,7 @@ class Tiny extends Router {
     return this;
   }
 
-  Router() {
+  static Router() {
     return new Router();
   }
 

@@ -12,9 +12,7 @@ class Response {
 
   writeHead(int, obj) {
     this.statusCode = int;
-    for (const k in obj) {
-      this.headers[k.toLowerCase()] = obj[k];
-    }
+    this.headers = { ...this.headers, ...obj };
   }
 
   getHeaders() {
@@ -22,11 +20,7 @@ class Response {
   }
 
   getHeaderNames() {
-    let k;
-
-    const arr = [];
-    for (k in this.headers) arr.push(k);
-    return arr;
+    return Object.keys(this.headers);
   }
 
   getHeader(key) {
