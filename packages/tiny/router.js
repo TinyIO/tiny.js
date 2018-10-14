@@ -77,38 +77,12 @@ module.exports = class Router {
         const element = segs[i];
         const c = element.charCodeAt(0);
         switch (c) {
-          case COLON: {
-            const name = element.substr(1);
-            if (!name) {
-              throw new Error('need param name');
-            }
-            let current = output[PARAM];
-            if (!current) {
-              params.forEach((param) => {
-                if (param === name) {
-                  throw new Error('dup param');
-                }
-              });
-              params.push(name);
-
-              current = output[PARAM] = {
-                [TYPE]: PTYPE,
-                [NAME]: name,
-                [HANDLER]: [],
-                [PARAM]: null
-              };
-            } else if (current[TYPE] !== PTYPE) {
-              throw new Error('a param with same path already exist');
-            } else if (current[NAME] !== name) {
-              throw new Error('param change name');
-            }
-            output = current;
-            break;
-          }
-          case ASTER: {
-            if (i + 1 !== len) {
+          case (COLON, ASTER): {
+            const type = c === COLON ? PTYPE : ATYPE;
+            if (type === ATYPE && i + 1 !== len) {
               throw new Error('should be last');
             }
+
             const name = element.substr(1);
             if (!name) {
               throw new Error('need param name');
@@ -123,13 +97,13 @@ module.exports = class Router {
               params.push(name);
 
               current = output[PARAM] = {
-                [TYPE]: ATYPE,
+                [TYPE]: type,
                 [NAME]: name,
                 [HANDLER]: [],
                 [PARAM]: null
               };
-            } else if (current[TYPE] !== ATYPE) {
-              throw new Error('param change type');
+            } else if (current[TYPE] !== type) {
+              throw new Error('a param with same path already exist');
             } else if (current[NAME] !== name) {
               throw new Error('param change name');
             }

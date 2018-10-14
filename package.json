@@ -15,6 +15,7 @@
   "scripts": {
     "test": "node test/index.js",
     "tape": "tape tests/*.js | tap-spec",
+    "cover": "istanbul cover test/index.js",
     "eslint": "eslint --quiet --fix .",
     "bench": "node test/benchmarks"
   },
@@ -38,5 +39,6 @@
     "rayo": "^1.2.4",
     "tap-spec": "^5.0.0",
     "tape": "^4.9.1"
-  }
+  },
+  "dependencies": {}
 }

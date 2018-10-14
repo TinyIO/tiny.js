@@ -1,5 +1,4 @@
-const { STATUS_CODES } = require('http');
-const { createServer } = require('http');
+const { STATUS_CODES, createServer } = require('http');
 const { parse } = require('querystring');
 const parseurl = require('./parseurl');
 const Router = require('./router');

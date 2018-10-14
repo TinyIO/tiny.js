@@ -372,18 +372,18 @@ const UTF8_DATA = [
 
   // The third part maps the current transition to a mask that needs to apply
   // to the byte.
-  0x7f,
-  0x3f,
-  0x3f,
-  0x3f,
-  0x00,
-  0x1f,
-  0x0f,
-  0x0f,
-  0x0f,
-  0x07,
-  0x07,
-  0x07
+  127,
+  63,
+  63,
+  63,
+  0,
+  31,
+  15,
+  15,
+  15,
+  7,
+  7,
+  7
 ];
 
 const HEX = [
@@ -494,7 +494,7 @@ const HEX = [
 
 const hexCodeToInt = (c, shift) => {
   const i = HEX[c];
-  return i === undefined ? 255 : i << shift;
+  return i === void 0 ? 255 : i << shift;
 };
 
 const decodeURIComponent = (uri) => {
