@@ -67,11 +67,11 @@ module.exports = class Router {
       }
     });
 
-    const routes = this.routes;
+    const { routes } = this;
 
     const parse = (method) => {
       if (path === SEP) {
-        routes[method][HANDLER] = routes[method][HANDLER].concat(handlers);
+        routes[method][HANDLER] = [...routes[method][HANDLER], ...handlers];
         return;
       }
 
@@ -157,7 +157,7 @@ module.exports = class Router {
         }
       }
 
-      output[HANDLER] = output[HANDLER].concat(handlers);
+      output[HANDLER] = [...output[HANDLER], ...handlers];
     };
 
     if (verb === 'all') {
@@ -172,10 +172,10 @@ module.exports = class Router {
   filter(base = SEP, ...handlers) {
     if (typeof base === 'function') {
       const routes = this.routes[FILTER];
-      routes[HANDLER] = routes[HANDLER].concat(base, handlers);
+      routes[HANDLER] = [...routes[HANDLER], base, ...handlers];
     } else if (base === SEP) {
       const routes = this.routes[FILTER];
-      routes[HANDLER] = routes[HANDLER].concat(handlers);
+      routes[HANDLER] = [...routes[HANDLER], ...handlers];
     } else {
       this.add(FILTER, base, ...handlers);
     }
@@ -221,7 +221,7 @@ module.exports = class Router {
         throw new Error('type missmatch');
       }
 
-      out[HANDLER] = out[HANDLER].concat(src[HANDLER]);
+      out[HANDLER] = [...out[HANDLER], ...src[HANDLER]];
 
       Object.keys(src).forEach((key) => {
         out[key] = merge(out[key], src[key]);
@@ -255,12 +255,12 @@ module.exports = class Router {
       {
         const target = route[HANDLER];
         if (target.length > 0) {
-          route[HANDLER] = handler.concat(target);
+          route[HANDLER] = [...handler, ...target];
         }
       }
 
-      Object.keys(route).forEach((key) => {
-        perpand(route[key], handler);
+      Object.values(route).forEach((item) => {
+        perpand(item, handler);
       });
 
       if (route[PARAM]) {
@@ -282,24 +282,24 @@ module.exports = class Router {
     };
 
     const filter = ways[FILTER];
-    Object.keys(ways).forEach((key) => {
-      walk(ways[key], filter);
+    Object.values(ways).forEach((way) => {
+      walk(way, filter);
     });
 
     // 最后冻结
+    return this;
   }
 
   toString() {
     const print = (route, prefix) => {
       if (prefix === void 0) prefix = '';
 
-      const childs = Object.keys(route.childs);
+      const childs = Object.values(route.childs);
       const methods = Object.keys(route.methods).join(',');
       const lines = methods.length > 0 ? `${route.name} [${methods}]` : route.name;
 
       return `${prefix + lines}\n${childs
-        .map((key, ix) => {
-          const child = route.childs[key];
+        .map((child, ix) => {
           const last = ix === childs.length - 1;
           const more = Object.keys(child.childs).length;
           const prefix_ = `${prefix + (last ? ' ' : '│')} `;
@@ -311,9 +311,9 @@ module.exports = class Router {
         .join('')}`;
     };
 
-    const compose = (method, route, obj) => {
-      let name = route[NAME];
-      const type = route[TYPE];
+    const compose = (method, routes, obj) => {
+      let name = routes[NAME];
+      const type = routes[TYPE];
       if (type === PTYPE) {
         name = `: ${name}`;
       } else if (type === ATYPE) {
@@ -325,20 +325,20 @@ module.exports = class Router {
         childs: {}
       };
       obj[name] = item;
-      if (route[HANDLER].length > 0) {
+      if (routes[HANDLER].length > 0) {
         item.methods[method] = true;
       }
-      Object.keys(route).forEach((key) => {
+      Object.values(routes).forEach((route) => {
         compose(
           method,
-          route[key],
+          route,
           item.childs
         );
       });
-      if (route[PARAM]) {
+      if (routes[PARAM]) {
         compose(
           method,
-          route[PARAM],
+          routes[PARAM],
           item.childs
         );
       }

@@ -11,4 +11,4 @@ api.forEach((val) => {
   app[val[0].toLowerCase()](val[1], handler);
 });
 
-app.listen(3001);
+app.build().listen(3001);
