@@ -662,7 +662,7 @@ tape('tiny::options::onError', async (t) => {
   });
 });
 
-tape('tiny::options::onNoMatch', async (t) => {
+tape('tiny::options::notFound', async (t) => {
   t.plan(6);
 
   const foo = (req, res) => {
@@ -672,9 +672,9 @@ tape('tiny::options::onNoMatch', async (t) => {
     res.end('prefer: Method Not Found');
   };
 
-  const app = tiny({ onNoMatch: foo }).get('/', () => {});
+  const app = tiny({ notFound: foo }).get('/', () => {});
 
-  t.is(app.onNoMatch, foo, 'replaces `app.onNoMatch` with the option value');
+  t.is(app.notFound, foo, 'replaces `app.notFound` with the option value');
   t.not(app.onError, foo, 'does not affect the `app.onError` handler');
 
   app.build();

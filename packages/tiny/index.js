@@ -19,6 +19,7 @@ class Tiny extends Router {
     this.handler = this.handler.bind(this);
     this.match = super.match;
     this.subRoutes = [];
+    this.Router = Tiny.Router;
   }
 
   listen(...args) {
@@ -32,6 +33,9 @@ class Tiny extends Router {
   }
 
   mount(base, router) {
+    if (base instanceof Router) {
+      router = base;
+    }
     if (router.basePath != null) {
       throw new Error('');
     }
@@ -44,6 +48,10 @@ class Tiny extends Router {
     const router = new Router(basePath);
     this.subRoutes.push(router);
     return router;
+  }
+
+  build() {
+    super.build(this.subRoutes);
   }
 
   handler(req, res) {

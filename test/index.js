@@ -40,7 +40,9 @@ app
 
 app2.get('/users/:group/', handlerID).get('/users/:group/:id', handlerIDID);
 
-app.build(app2);
+app.mount('/mount/', app2);
+
+app.build();
 
 console.log(app.toString());
 

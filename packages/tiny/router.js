@@ -173,12 +173,50 @@ module.exports = class Router {
     return route[HANDLER];
   }
 
-  build(other) {
+  build(others) {
+    const findBase = (ways, path) => {
+      const segs = split(path);
+      for (let i = 0, len = segs.length; i < len; i++) {
+        let name = segs[i];
+        const c = name.charCodeAt(0);
+        switch (c) {
+          case (COLON, ASTER): {
+            name = name.substr(1);
+            const type = c === COLON ? PTYPE : ATYPE;
+            let current = ways[PARAM];
+            if (!current) {
+              current = ways[PARAM] = {
+                [TYPE]: type,
+                [NAME]: name,
+                [HANDLER]: [],
+                [PARAM]: null
+              };
+            }
+            ways = current;
+            break;
+          }
+          default: {
+            let current = ways[name];
+            if (!current) {
+              current = ways[name] = {
+                [TYPE]: STYPE,
+                [NAME]: name,
+                [HANDLER]: [],
+                [PARAM]: null
+              };
+            }
+            ways = current;
+            break;
+          }
+        }
+      }
+      return ways;
+    };
+
     const merge = (dest, src) => {
       if (!src && !dest) {
         return null;
       }
-
       const out = dest || {
         [TYPE]: src[TYPE],
         [NAME]: src[NAME],
@@ -201,25 +239,44 @@ module.exports = class Router {
       return out;
     };
 
-    const loop = (output, input) => {
+    const loop = (output, input, basePath) => {
       Object.keys(input).forEach((key) => {
-        output[key] = merge(output[key], input[key]);
+        let out = output[key];
+        if (!out) {
+          out = output[key] = {
+            [TYPE]: STYPE,
+            [NAME]: SEP,
+            [HANDLER]: [],
+            [PARAM]: null
+          };
+        }
+        merge(findBase(out, basePath), input[key]);
       });
-      output[FILTER] = merge(output[FILTER], input[FILTER]);
+      let out = output[FILTER];
+      if (!out) {
+        out = output[FILTER] = {
+          [TYPE]: STYPE,
+          [NAME]: SEP,
+          [HANDLER]: [],
+          [PARAM]: null
+        };
+      }
+      merge(findBase(out, basePath), input[FILTER]);
     };
-
-    // 先merge所有subRouter
 
     const ways = (this.ways = {});
 
-    loop(ways, this.routes);
+    // build ways
+    loop(ways, this.routes, '/');
 
-    if (other) {
-      loop(ways, other.routes);
+    // merge sub routers
+    if (others) {
+      others.forEach((other) => {
+        loop(ways, other.routes, other.basePath);
+      });
     }
 
-    // 然后applay自身所有Filter
-
+    // applay fliters
     const perpand = (route, handler) => {
       {
         const target = route[HANDLER];
@@ -255,7 +312,7 @@ module.exports = class Router {
       walk(way, filter);
     });
 
-    // 最后冻结
+    // todo: should freeze this.ways?
     return this;
   }
 
