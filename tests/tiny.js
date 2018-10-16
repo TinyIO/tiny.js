@@ -515,7 +515,7 @@ tape('tiny::usage::sub-apps', async (t) => {
 
   const app = tiny()
     .filter(foo)
-    .filter('sub', sub)
+    .mount('sub', sub)
     .get('/', (req, res) => {
       t.pass('run the main-application route');
       t.is(req.foo, 'hello', '~> receives mutatations from middleware');
@@ -523,13 +523,6 @@ tape('tiny::usage::sub-apps', async (t) => {
       t.is(req.originalUrl, '/', '~> always sets `req.originalUrl` key');
       res.end('hello from main');
     });
-
-  // sub-app already exists Error checking
-  t.throws(
-    () => app.get('/sub'),
-    `Cannot mount ".get('/sub')" because`,
-    'throws Error when attempting to add route-handler ona path where Tiny (sub)-app exists'
-  );
 
   app.build();
   app.listen(8080, 'localhost');
@@ -606,7 +599,8 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
       req.main = true;
       return next();
     })
-    .filter('/api', verify, api);
+    .filter('/api', verify)
+    .mount('/api', api);
 
   main.build();
   main.listen(8080, 'localhost');
