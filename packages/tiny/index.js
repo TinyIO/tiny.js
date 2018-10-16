@@ -64,7 +64,7 @@ class Tiny extends Router {
     }
 
     req.params = params;
-    req.pathname = parsedUrl.pathname;
+    req.path = parsedUrl.pathname;
     req.query = parse(parsedUrl.query);
 
     const h = route;
