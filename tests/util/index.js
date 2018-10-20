@@ -21,3 +21,9 @@ exports.tape = tape;
 exports.toStatusText = (code) => STATUS_CODES[code];
 
 exports.sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+exports.listen = (app, host) => {
+  app.build().listen(); // boots
+  const { port } = app.server.address();
+  return `http://${host || 'localhost'}:${port}`;
+};

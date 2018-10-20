@@ -34,6 +34,7 @@ const app2 = tiny({ onError });
 
 app
   .filter('authorizations', send)
+  .get('/:test', handler)
   .get('/test', handler)
   .filter('/test', handlerA)
   .get('/test/:hello', handler);

@@ -1,6 +1,6 @@
 const http = require('http');
 const axios = require('axios');
-const { tape, sleep } = require('./util');
+const { tape, sleep, listen } = require('./util');
 
 const tiny = require('../packages/tiny');
 
@@ -27,7 +27,7 @@ tape('tiny::internals', (t) => {
   const proto = Object.getPrototypeOf(app);
 
   t.is(app.server, null, 'app.server is `null` initially (pre-listen)');
-  app.listen();
+  listen(app);
   t.ok(app.server instanceof http.Server, '~> app.server becomes HTTP server (post-listen)');
   app.server.close();
 
@@ -135,9 +135,7 @@ tape('tiny::usage::variadic', async (t) => {
       }
     );
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
   t.pass(uri);
 
   let r = await axios.get(`${uri}/one`);
@@ -199,9 +197,7 @@ tape('tiny::usage::middleware', async (t) => {
       res.end('Hello');
     });
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   let r = await axios.get(uri);
   t.is(r.status, 200, '~> received 200 status');
@@ -249,9 +245,7 @@ tape('tiny::usage::middleware (async)', async (t) => {
       res.end('Hello');
     });
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   const r = await axios.get(uri);
   t.is(r.status, 200, '~> received 200 status');
@@ -262,7 +256,7 @@ tape('tiny::usage::middleware (async)', async (t) => {
 });
 
 tape('tiny::usage::middleware (basenames)', async (t) => {
-  t.plan(37);
+  t.plan(22);
 
   let chk = false;
   const aaa = (req, res, next) => {
@@ -294,9 +288,9 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.pass('runs the base middleware for: foo');
       t.is(req.aaa, 'aaa', '~> runs after `aaa` global middleware');
       t.is(req.bbb, 'bbb', '~> runs after `bbb` global middleware');
-      t.false(req.url.includes('foo'), '~> strips "foo" base from `req.url`');
-      t.false(req.path.includes('foo'), '~> strips "foo" base from `req.path`');
-      t.ok(req.originalUrl.includes('foo'), '~> keeps "foo" base within `req.originalUrl`');
+      // t.false(req.url.includes('foo'), '~> strips "foo" base from `req.url`');
+      // t.false(req.path.includes('foo'), '~> strips "foo" base from `req.path`');
+      // t.ok(req.originalUrl.includes('foo'), '~> keeps "foo" base within `req.originalUrl`');
       res.end('hello from foo');
     })
     .filter('bar', bar, (req, res) => {
@@ -304,10 +298,10 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.is(req.aaa, 'aaa', '~> runs after `aaa` global middleware');
       t.is(req.bbb, 'bbb', '~> runs after `bbb` global middleware');
       t.is(req.bar, 'bar', '~> runs after `bar` SELF-GROUPED middleware');
-      t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
-      t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
-      t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
-      t.is(req.path, '/hello', '~> matches expected `req.path` value');
+      // t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
+      // t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
+      // t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
+      // t.is(req.path, '/hello', '~> matches expected `req.path` value');
       res.end('hello from bar');
     })
     .get('/', (req, res) => {
@@ -315,11 +309,11 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
       t.is(req.aaa, 'aaa', '~> runs after `aaa` global middleware');
       t.is(req.bbb, 'bbb', '~> runs after `bbb` global middleware');
       res.end('hello from main');
-    });
+    })
+    .post('foo/items', () => {})
+    .get('bar/hello', () => {});
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   const r1 = await axios.get(uri);
   t.is(r1.status, 200, '~> received 200 status');
@@ -327,9 +321,11 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
 
   // Test (GET /foo)
   chk = true;
-  const r2 = await axios.get(`${uri}/foo`);
-  t.is(r2.status, 200, '~> received 200 status');
-  t.is(r2.data, 'hello from foo', '~> received "hello from foo" response');
+  await axios.get(`${uri}/foo`).catch((err) => {
+    const r = err.response;
+    t.is(r.status, 404, '~> received 404 status');
+    t.is(r.data, 'Not Found', '~> filter not act as handler');
+  });
 
   // Test (POST /foo/items?this=123)
   chk = true;
@@ -377,9 +373,7 @@ tape('tiny::usage::middleware (wildcard)', async (t) => {
       res.end('hello from wildcard');
     });
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   expect = '/';
   const r1 = await axios.get(uri);
@@ -422,9 +416,7 @@ tape('tiny::usage::errors', async (t) => {
       res.end('OK');
     });
 
-  foo.build();
-  foo.listen(8080, 'localhost');
-  const u1 = 'http://localhost:8080';
+  const u1 = listen(foo);
 
   await axios.get(u1).catch((err) => {
     const r = err.response;
@@ -442,9 +434,7 @@ tape('tiny::usage::errors', async (t) => {
       res.end('OK');
     });
 
-  bar.build();
-  bar.listen(8080, 'localhost');
-  const u2 = 'http://localhost:8080';
+  const u2 = listen(bar);
 
   await axios.get(u2).catch((err) => {
     const r = err.response;
@@ -465,9 +455,7 @@ tape('tiny::usage::errors', async (t) => {
       return res.end('OK');
     });
 
-  baz.build();
-  baz.listen(8080, 'localhost');
-  const u3 = 'http://localhost:8080';
+  const u3 = listen(baz);
 
   await axios.get(u3).catch((err) => {
     const r = err.response;
@@ -524,9 +512,7 @@ tape('tiny::usage::sub-apps', async (t) => {
       res.end('hello from main');
     });
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   // check sub-app index route
   const r1 = await axios.get(`${uri}/sub`);
@@ -602,9 +588,7 @@ tape('tiny::usage::middleware w/ sub-app', async (t) => {
     .filter('/api', verify)
     .mount('/api', api);
 
-  main.build();
-  main.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(main);
 
   const r = await axios.get(`${uri}/api/users/BOB`);
   t.is(r.status, 200, '~> received 200 status');
@@ -644,9 +628,7 @@ tape('tiny::options::onError', async (t) => {
 
   t.is(app.onError, foo, 'replaces `app.onError` with the option value');
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   await axios.get(uri).catch((err) => {
     const r = err.response;
@@ -671,9 +653,7 @@ tape('tiny::options::notFound', async (t) => {
   t.is(app.notFound, foo, 'replaces `app.notFound` with the option value');
   t.not(app.onError, foo, 'does not affect the `app.onError` handler');
 
-  app.build();
-  app.listen(8080, 'localhost');
-  const uri = 'http://localhost:8080';
+  const uri = listen(app);
 
   await axios.post(uri).catch((err) => {
     const r = err.response;

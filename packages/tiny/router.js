@@ -8,6 +8,7 @@ const EMPTY_ARRAY = [];
 Object.freeze(EMPTY_ARRAY);
 
 const FILTER = Symbol('*');
+const WAY = Symbol('way');
 
 const PARAM = Symbol('param');
 const NAME = Symbol('name');
@@ -26,7 +27,7 @@ const split = (str) => ((str = strip(str)) === SEP ? EMPTY_ARRAY : str.split(SEP
 module.exports = class Router {
   constructor(path = null) {
     this.basePath = path;
-    this.ways = {};
+    this[WAY] = null;
     this.routes = {
       // FILTER(*) for through filter (aka use) handler
       [FILTER]: {
@@ -64,12 +65,13 @@ module.exports = class Router {
     const { routes } = this;
 
     const parse = (method) => {
+      const result = routes[method];
+
       if (path === SEP) {
-        routes[method][HANDLER] = [...routes[method][HANDLER], ...handlers];
+        result[HANDLER] = [...result[HANDLER], ...handlers];
         return;
       }
 
-      const result = routes[method];
       const segs = split(path);
       let output = result;
       const params = [];
@@ -153,7 +155,7 @@ module.exports = class Router {
 
   match(verb, url, param) {
     const segs = split(url);
-    let route = this.ways[verb];
+    let route = this[WAY][verb];
     for (let i = 0, len = segs.length; i < len; i++) {
       const part = segs[i];
       let out = route[part];
@@ -264,7 +266,7 @@ module.exports = class Router {
       merge(findBase(out, basePath), input[FILTER]);
     };
 
-    const ways = (this.ways = {});
+    const ways = (this[WAY] = {});
 
     // build ways
     loop(ways, this.routes, '/');
@@ -312,7 +314,7 @@ module.exports = class Router {
       walk(way, filter);
     });
 
-    // todo: should freeze this.ways?
+    // todo: should freeze this[WAY]?
     return this;
   }
 
@@ -370,7 +372,7 @@ module.exports = class Router {
       }
     };
 
-    const routes = this.ways;
+    const routes = this[WAY];
     const tree = {};
 
     compose(

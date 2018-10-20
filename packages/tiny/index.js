@@ -51,7 +51,7 @@ class Tiny extends Router {
   }
 
   build() {
-    super.build(this.subRoutes);
+    return super.build(this.subRoutes);
   }
 
   handler(req, res) {
