@@ -348,58 +348,58 @@ tape('tiny::usage::middleware (basenames)', async (t) => {
   app.server.close();
 });
 
-tape('tiny::usage::middleware (wildcard)', async (t) => {
-  t.plan(29);
+// tape('tiny::usage::middleware (wildcard)', async (t) => {
+//   t.plan(29);
 
-  let expect;
-  const foo = (req, res, next) => (req.foo = 'foo') && next();
+//   let expect;
+//   const foo = (req, res, next) => (req.foo = 'foo') && next();
 
-  const app = tiny()
-    .filter(foo) // global
-    .filter('bar', (req, res) => {
-      // runs 2x
-      t.pass('runs the base middleware for: bar');
-      t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
-      t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
-      t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
-      t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
-      res.end('hello from bar');
-    })
-    .get('*all', (req, res) => {
-      // runs 3x
-      t.pass('runs the MAIN app handler for GET /*');
-      t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
-      t.is(req.url, expect, '~> receives the full, expected URL');
-      res.end('hello from wildcard');
-    });
+//   const app = tiny()
+//     .filter(foo) // global
+//     .filter('bar', (req, res) => {
+//       // runs 2x
+//       t.pass('runs the base middleware for: bar');
+//       t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
+//       t.false(req.url.includes('bar'), '~> strips "bar" base from `req.url`');
+//       t.false(req.path.includes('bar'), '~> strips "bar" base from `req.path`');
+//       t.ok(req.originalUrl.includes('bar'), '~> keeps "bar" base within `req.originalUrl`');
+//       res.end('hello from bar');
+//     })
+//     .get('*all', (req, res) => {
+//       // runs 3x
+//       t.pass('runs the MAIN app handler for GET /*');
+//       t.is(req.foo, 'foo', '~> runs after `foo` global middleware');
+//       t.is(req.url, expect, '~> receives the full, expected URL');
+//       res.end('hello from wildcard');
+//     });
 
-  const uri = listen(app);
+//   const uri = listen(app);
 
-  expect = '/';
-  const r1 = await axios.get(uri);
-  t.is(r1.status, 200, '~> received 200 status');
-  t.is(r1.data, 'hello from wildcard', '~> received "hello from wildcard" response');
+//   expect = '/';
+//   const r1 = await axios.get(uri);
+//   t.is(r1.status, 200, '~> received 200 status');
+//   t.is(r1.data, 'hello from wildcard', '~> received "hello from wildcard" response');
 
-  expect = '/hello';
-  const r2 = await axios.get(`${uri}${expect}`);
-  t.is(r2.status, 200, '~> received 200 status');
-  t.is(r2.data, 'hello from wildcard', '~> received "hello from wildcard" response');
+//   expect = '/hello';
+//   const r2 = await axios.get(`${uri}${expect}`);
+//   t.is(r2.status, 200, '~> received 200 status');
+//   t.is(r2.data, 'hello from wildcard', '~> received "hello from wildcard" response');
 
-  expect = '/a/b/c';
-  const r3 = await axios.get(`${uri}${expect}`);
-  t.is(r3.status, 200, '~> received 200 status');
-  t.is(r3.data, 'hello from wildcard', '~> received "hello from wildcard" response');
+//   expect = '/a/b/c';
+//   const r3 = await axios.get(`${uri}${expect}`);
+//   t.is(r3.status, 200, '~> received 200 status');
+//   t.is(r3.data, 'hello from wildcard', '~> received "hello from wildcard" response');
 
-  const r4 = await axios.get(`${uri}/bar`);
-  t.is(r4.status, 200, '~> received 200 status');
-  t.is(r4.data, 'hello from bar', '~> received "hello from bar" response');
+//   const r4 = await axios.get(`${uri}/bar`);
+//   t.is(r4.status, 200, '~> received 200 status');
+//   t.is(r4.data, 'hello from bar', '~> received "hello from bar" response');
 
-  const r5 = await axios.get(`${uri}/bar/extra`);
-  t.is(r5.status, 200, '~> received 200 status');
-  t.is(r5.data, 'hello from bar', '~> received "hello from bar" response');
+//   const r5 = await axios.get(`${uri}/bar/extra`);
+//   t.is(r5.status, 200, '~> received 200 status');
+//   t.is(r5.data, 'hello from bar', '~> received "hello from bar" response');
 
-  app.server.close();
-});
+//   app.server.close();
+// });
 
 tape('tiny::usage::errors', async (t) => {
   t.plan(9);

@@ -79,7 +79,8 @@ module.exports = class Router {
         const element = segs[i];
         const c = element.charCodeAt(0);
         switch (c) {
-          case (COLON, ASTER): {
+          case COLON:
+          case ASTER: {
             const type = c === COLON ? PTYPE : ATYPE;
             if (type === ATYPE && i + 1 !== len) {
               throw new Error('should be last');
