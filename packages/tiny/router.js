@@ -54,6 +54,13 @@ module.exports = class Router {
   }
 
   add(verb, path, ...handlers) {
+    if (Array.isArray(path)) {
+      path.forEach((url) => {
+        this.add(verb, url, ...handlers);
+      });
+      return;
+    }
+
     handlers.forEach((handle) => {
       if (typeof handle !== 'function') {
         throw new Error(
@@ -283,9 +290,7 @@ module.exports = class Router {
     const perpand = (route, handler) => {
       {
         const target = route[HANDLER];
-        if (target.length > 0) {
-          route[HANDLER] = [...handler, ...target];
-        }
+        route[HANDLER] = [...handler, ...target];
       }
 
       Object.values(route).forEach((item) => {
@@ -299,13 +304,31 @@ module.exports = class Router {
 
     const walk = (way, filter) => {
       Object.keys(filter).forEach((key) => {
-        walk(way[key], filter[key]);
+        const src = filter[key];
+        if (!way[key]) {
+          way[key] = {
+            [TYPE]: src[TYPE],
+            [NAME]: src[NAME],
+            [HANDLER]: [],
+            [PARAM]: null
+          };
+        }
+        walk(way[key], src);
       });
-      if (filter[PARAM]) {
-        walk(way[PARAM], filter[PARAM]);
+      const src = filter[PARAM];
+      if (src) {
+        if (!way[PARAM]) {
+          way[PARAM] = {
+            [TYPE]: src[TYPE],
+            [NAME]: src[NAME],
+            [HANDLER]: [],
+            [PARAM]: null
+          };
+        }
+        walk(way[PARAM], src);
       }
       const handler = filter[HANDLER];
-      if (way && handler.length > 0) {
+      if (handler.length > 0) {
         perpand(way, handler);
       }
     };
