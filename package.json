@@ -15,8 +15,8 @@
   "scripts": {
     "test": "node test/index.js",
     "tape": "tape tests/*.js | tap-spec",
-    "cover": "istanbul cover test/index.js",
-    "eslint": "eslint --quiet --fix .",
+    "lint": "eslint --quiet --fix .",
+    "cover": "nyc --reporter=lcovonly --reporter=text --reporter=text-summary --exclude=tests tape tests/*.js | tap-spec",
     "bench": "node test/benchmarks"
   },
   "license": "MIT",
@@ -24,21 +24,23 @@
     "autocannon": "^2.4.1",
     "axios": "^0.18.0",
     "cli-table": "^0.3.1",
-    "eslint": "^5.12.0",
+    "coveralls": "^3.0.3",
+    "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^3.4.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint-config-prettier": "^3.6.0",
+    "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-prettier": "^2.7.0",
-    "express": "^4.16.4",
+    "express": "^4.17.0",
     "kleur": "^2.0.2",
     "minimist": "^1.2.0",
-    "ora": "^3.0.0",
+    "nyc": "^14.1.1",
+    "ora": "^3.4.0",
     "pancho": "^1.0.2",
-    "polka": "^0.5.1",
-    "prettier": "^1.15.3",
-    "rayo": "^1.2.7",
+    "polka": "^0.5.2",
+    "prettier": "^1.17.1",
+    "rayo": "^1.3.2",
     "tap-spec": "^5.0.0",
-    "tape": "^4.9.2"
+    "tape": "^4.10.1"
   },
   "dependencies": {}
 }

@@ -1,3 +1,4 @@
 .nyc_support
 coverage
+backup
 packages/**/node_modules

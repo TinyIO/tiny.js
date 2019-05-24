@@ -1,8 +1,11 @@
 {
-  "name": "tiny",
-  "version": "0.0.1",
-  "description": "tiny, an micro-framework for Nodejs.",
+  "name": "tiny.io",
+  "version": "0.0.2",
+  "description": "tiny.io, a tiny-web-framework for Nodejs.",
   "main": "index.js",
+  "files": [
+    "*.js"
+  ],
   "engines": {
     "node": ">=8.11.4"
   },

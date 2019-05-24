@@ -33,13 +33,7 @@ class Tiny extends Router {
   }
 
   mount(base, router) {
-    if (base instanceof Router) {
-      router = base;
-    }
-    if (router.basePath != null) {
-      throw new Error('');
-    }
-    router.basePath = base;
+    router.setBasePath(base);
     this.subRoutes.push(router);
     return this;
   }
@@ -55,6 +49,7 @@ class Tiny extends Router {
   }
 
   handler(req, res) {
+    req.originalUrl = req.originalUrl || req.url;
     const parsedUrl = parseurl(req);
     const params = {};
     const route = this.match(req.method, parsedUrl.pathname, params);

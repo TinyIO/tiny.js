@@ -68,19 +68,19 @@ function test1() {
       res.end('hello from sub@show');
     });
 
-  const app = tiny()
+  const app3 = tiny()
     .filter(foo)
     .mount('sub', sub)
     .get('/', (req, res) => {
       res.end('hello from main');
     });
 
-  app.build();
+  app3.build();
 
-  console.log(app.toString());
+  console.log(app3.toString());
 
   const params = {};
-  console.log(app.match('GET', '/sub/hi', params));
+  console.log(app3.match('GET', '/sub/hi', params));
   console.log(JSON.stringify(params));
 }
 

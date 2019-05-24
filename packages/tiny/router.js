@@ -15,25 +15,38 @@ const NAME = Symbol('name');
 const TYPE = Symbol('type');
 const HANDLER = Symbol('handler');
 
+const lead = (x) => (x.charCodeAt(0) === 47 ? x : `/${x}`);
+
 const strip = (str) => {
   if (str === SEP) return str;
+  // eslint-disable-next-line no-unused-expressions
   str.charCodeAt(0) === SLASH && (str = str.substr(1));
   const len = str.length - 1;
   return str.charCodeAt(len) === SLASH ? str.substr(0, len) : str;
 };
 
+// eslint-disable-next-line no-cond-assign
 const split = (str) => ((str = strip(str)) === SEP ? EMPTY_ARRAY : str.split(SEP));
 
 module.exports = class Router {
   constructor(path = null) {
-    this.basePath = path;
+    this.basePath = path && lead(path);
+    const baseLen = path && this.basePath.length;
     this[WAY] = null;
     this.routes = {
       // FILTER(*) for through filter (aka use) handler
       [FILTER]: {
         [TYPE]: STYPE,
         [NAME]: SEP,
-        [HANDLER]: [],
+        [HANDLER]: path
+          ? [
+              (req, res, next) => {
+                req.url = req.url.substring(baseLen) || '/';
+                req.path = req.path.substring(baseLen) || '/';
+                next();
+              }
+            ]
+          : [],
         [PARAM]: null
       }
     };
@@ -53,12 +66,29 @@ module.exports = class Router {
     this.all = this.add.bind(this, ...bind);
   }
 
+  setBasePath(path) {
+    if (this.basePath) {
+      throw new Error('router may mounted?');
+    }
+    this.basePath = lead(path);
+    const baseLen = this.basePath.length;
+
+    const routes = this.routes[FILTER];
+    routes[HANDLER] = [
+      (req, res, next) => {
+        req.url = req.url.substring(baseLen) || '/';
+        next();
+      },
+      ...routes[HANDLER]
+    ];
+  }
+
   add(verb, path, ...handlers) {
     if (Array.isArray(path)) {
       path.forEach((url) => {
         this.add(verb, url, ...handlers);
       });
-      return;
+      return null;
     }
 
     handlers.forEach((handle) => {

@@ -34,7 +34,7 @@ module.exports = function(dir, opts = {}) {
   dir = resolve(dir || '.');
   const FILES = {};
   const find = (uri, extns) => {
-    if (!!~uri.lastIndexOf('.')) return FILES[uri];
+    if (~uri.lastIndexOf('.')) return FILES[uri];
     let i = 0;
     let data;
     const arr = toAssume(uri, extns);
@@ -76,8 +76,8 @@ module.exports = function(dir, opts = {}) {
       'last-modified': stats.mtime.toUTCString()
     };
     cc && (headers['cache-control'] = cc);
-    opts.etag && (headers['etag'] = toEtag(stats));
-    FILES['/' + str.replace(/\\+/g, '/')] = { abs, stats, headers };
+    opts.etag && (headers.etag = toEtag(stats));
+    FILES[`/${str.replace(/\\+/g, '/')}`] = { abs, stats, headers };
   });
 
   return (req, res, next) => {
