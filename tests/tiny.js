@@ -58,7 +58,11 @@ tape('tiny::usage::basic', (t) => {
   t.plan(3);
 
   const app = tiny();
-  const arr = [['GET', '/'], ['POST', '/users'], ['PUT', '/users/:id']];
+  const arr = [
+    ['GET', '/'],
+    ['POST', '/users'],
+    ['PUT', '/users/:id']
+  ];
 
   arr.forEach(([m, p]) => {
     app.add(m, p, () => t.pass(`~> matched ${m}(${p}) route`));

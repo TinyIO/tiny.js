@@ -5,7 +5,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xuewuli/tiny.js.git"
+    "url": "https://github.com/TinyIO/tiny.js.git"
   },
   "author": {
     "name": "xuewuli",
@@ -21,24 +21,22 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "autocannon": "^2.4.1",
-    "axios": "^0.18.0",
+    "autocannon": "^4.6.0",
+    "axios": "^0.19.2",
     "cli-table": "^0.3.1",
     "coveralls": "^3.0.3",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^3.6.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-prettier": "^2.7.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "express": "^4.17.0",
-    "kleur": "^2.0.2",
+    "kleur": "^3.0.3",
     "minimist": "^1.2.0",
-    "nyc": "^14.1.1",
-    "ora": "^3.4.0",
+    "nyc": "^15.0.0",
+    "ora": "^4.0.3",
     "pancho": "^1.0.2",
-    "polka": "^0.5.2",
     "prettier": "^1.17.1",
-    "rayo": "^1.3.2",
     "tap-spec": "^5.0.0",
     "tape": "^4.10.1"
   },

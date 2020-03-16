@@ -34,7 +34,7 @@ module.exports = class Router {
     const baseLen = path && this.basePath.length;
     this[WAY] = null;
     this.routes = {
-      // FILTER(*) for through filter (aka use) handler
+      // FILTER(*) for filter (aka use) handler
       [FILTER]: {
         [TYPE]: STYPE,
         [NAME]: SEP,
@@ -411,35 +411,19 @@ module.exports = class Router {
         item.methods[method] = true;
       }
       Object.values(routes).forEach((route) => {
-        compose(
-          method,
-          route,
-          item.childs
-        );
+        compose(method, route, item.childs);
       });
       if (routes[PARAM]) {
-        compose(
-          method,
-          routes[PARAM],
-          item.childs
-        );
+        compose(method, routes[PARAM], item.childs);
       }
     };
 
     const routes = this[WAY];
     const tree = {};
 
-    compose(
-      '*',
-      routes[FILTER],
-      tree
-    );
+    compose('*', routes[FILTER], tree);
     Object.keys(routes).forEach((method) => {
-      compose(
-        method,
-        routes[method],
-        tree
-      );
+      compose(method, routes[method], tree);
     });
 
     return print(tree['/']);
