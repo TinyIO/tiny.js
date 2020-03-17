@@ -1,4 +1,5 @@
 /* eslint no-console: 0 */
+/* eslint no-async-promise-executor: 0 */
 
 const autocannon = require('autocannon');
 const kleur = require('kleur');
@@ -15,16 +16,13 @@ const argv = minimist(process.argv.slice(2));
 const cannon = (title = null) =>
   new Promise((yes, no) => {
     autocannon(
-      Object.assign(
-        {},
-        {
-          url: argv.u || 'http://localhost:3001/user/keys/233',
-          connections: argv.c || 500,
-          pipelining: argv.p || 50,
-          duration: argv.d || 10
-        },
-        { title }
-      ),
+      {
+        url: argv.u || 'http://localhost:3001/user/keys/233',
+        connections: argv.c || 500,
+        pipelining: argv.p || 50,
+        duration: argv.d || 10,
+        title
+      },
       (error, result) => (error ? no(error) : yes(result))
     );
   });

@@ -1,14 +1,18 @@
 const tiny = require('../../../packages/tiny');
 const api = require('../../assets/github-api');
 
-const app = tiny();
+const cluster = require('../cluster');
 
-const handler = (req, res) => {
-  res.end('find');
-};
+cluster(() => {
+  const app = tiny();
 
-api.forEach((val) => {
-  app[val[0].toLowerCase()](val[1], handler);
+  const handler = (req, res) => {
+    res.end('find');
+  };
+
+  api.forEach((val) => {
+    app[val[0].toLowerCase()](val[1], handler);
+  });
+
+  app.build().listen(3001);
 });
-
-app.build().listen(3001);
